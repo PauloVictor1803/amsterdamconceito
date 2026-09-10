@@ -1,0 +1,6 @@
+{
+  "name": "Amsterdam Conceito",
+  "description": "Mais do que simples moda, um conceito.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

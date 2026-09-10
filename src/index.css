@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #F8F9FA;
+  color: #111111;
+}
+
+/* Esconder scrollbar para carrosséis horizontais */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
