@@ -100,7 +100,6 @@ export async function getShopifyProducts(): Promise<Product[]> {
                   price { amount }
                   compareAtPrice { amount }
                   availableForSale
-                  quantityAvailable
                   selectedOptions {
                     name
                     value
@@ -144,7 +143,6 @@ export async function getShopifyProductByHandle(handle: string): Promise<Product
               price { amount }
               compareAtPrice { amount }
               availableForSale
-              quantityAvailable
               selectedOptions {
                 name
                 value
