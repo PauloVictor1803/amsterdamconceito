@@ -1,100 +1,117 @@
-import { Heart, Search, ShoppingBag, User, MapPin, Zap } from 'lucide-react';
-import { categories } from '../data';
+import { Heart, Search, ShoppingBag, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
+import { useState } from 'react';
+import { motion } from 'motion/react';
 
 export default function Header() {
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/busca?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
   return (
     <header className="w-full flex flex-col">
-      {/* Top Bar 1 - Location & Accessibility (Light) */}
-      <div className="w-full bg-white text-gray-500 text-[11px] font-medium px-4 py-1.5 flex justify-between items-center border-b border-gray-200">
-        <div className="flex items-center gap-1 cursor-pointer hover:text-gray-800 transition-colors">
-          <MapPin className="w-3 h-3" />
-          <span>Informe seu CEP</span>
-        </div>
-        <div className="hidden md:flex items-center gap-4">
-          <a href="#" className="hover:text-gray-800 transition-colors">Acessibilidade</a>
-          <a href="#" className="hover:text-gray-800 transition-colors">Cartão da Loja</a>
-          <a href="#" className="hover:text-gray-800 transition-colors">Baixe o app</a>
-          <a href="#" className="hover:text-gray-800 transition-colors">Ajuda</a>
-        </div>
-      </div>
-
-      {/* Main Header (Dark) */}
-      <div className="w-full bg-black text-white px-4 py-4 lg:px-8 flex items-center justify-between gap-4 lg:gap-12 relative z-50">
+      {/* Main Header (Dark - Charcoal) */}
+      <div className="w-full bg-[#1A1C1E] text-white px-4 py-5 lg:px-8 flex items-center justify-between gap-4 lg:gap-12 relative z-50">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white text-black font-bold flex items-center justify-center text-xl">
-              A
+          <Link to="/" className="flex flex-col items-center justify-center group">
+            <div className="flex items-center gap-1.5 text-2xl lg:text-3xl font-bold tracking-widest text-white mb-1">
+              <span className="font-light text-gray-200">AMT</span>
+              <svg viewBox="0 0 15 36" className="h-8 lg:h-10 w-auto text-[#C49A6C] fill-current mx-1.5 drop-shadow-sm">
+                <rect x="0" y="0" width="3.5" height="24" rx="1" />
+                <rect x="5.5" y="6" width="3.5" height="24" rx="1" />
+                <rect x="11" y="12" width="3.5" height="24" rx="1" />
+              </svg>
+              <span>CONCEITO</span>
             </div>
-            <span className="text-xl font-bold tracking-widest uppercase hidden sm:block">
-              Amsterdam
+            <span className="text-[8px] lg:text-[10px] tracking-[0.3em] text-[#C49A6C] font-semibold uppercase">
+              Amsterdam Conceito
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Search Bar */}
         <div className="flex-1 max-w-3xl relative hidden md:block">
-          <input
-            type="text"
-            placeholder="O que você procura hoje?"
-            className="w-full bg-white text-black rounded-sm py-3 pl-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF0054]"
-          />
-          <button className="absolute right-0 top-0 h-full px-4 text-black hover:text-[#FF0054] transition-colors">
-            <Search className="w-5 h-5" />
-          </button>
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="O que você procura hoje?"
+              className="w-full bg-white text-black rounded-sm py-3 pl-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49A6C]"
+            />
+            <button type="submit" className="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-[#C49A6C] transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+          </form>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-6 flex-shrink-0">
-          <button className="md:hidden text-white">
+          <button className="md:hidden text-white hover:text-[#C49A6C] transition-colors">
             <Search className="w-6 h-6" />
           </button>
-          <a href="#" className="hidden lg:flex items-center gap-2 hover:text-gray-300 transition-colors">
+          
+          <Link to="/favoritos" className="hidden lg:flex items-center gap-2 hover:text-[#C49A6C] transition-colors relative">
             <Heart className="w-6 h-6" />
             <span className="text-sm font-medium">Lista de Desejos</span>
-          </a>
-          <a href="#" className="flex items-center gap-2 hover:text-gray-300 transition-colors">
-            <User className="w-6 h-6" />
-            <span className="text-sm font-medium hidden lg:block">Entrar</span>
-          </a>
-          <a href="#" className="flex items-center gap-2 hover:text-gray-300 transition-colors relative">
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 left-3 bg-[#C49A6C] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#1A1C1E]">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          <Link to="/carrinho" className="flex items-center gap-2 hover:text-[#C49A6C] transition-colors relative">
             <ShoppingBag className="w-6 h-6" />
-            <span className="absolute -top-1 -right-2 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              0
-            </span>
-          </a>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-2 bg-[#C49A6C] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
 
-      {/* Navigation (Light) */}
-      <nav className="w-full bg-white border-b border-gray-200 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <ul className="flex items-center justify-between text-sm font-semibold text-gray-800">
-            {categories.map((cat, idx) => (
-              <li key={cat} className="group">
-                <a 
-                  href="#" 
-                  className={`block py-4 hover:text-[#FF0054] transition-colors ${idx === 0 ? 'flex items-center gap-2' : ''}`}
-                >
-                  {idx === 0 && <span className="text-xl leading-none">≡</span>}
-                  {cat}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Navigation Categories */}
+      <nav className="w-full bg-white border-b border-gray-200 hidden md:block shadow-sm relative z-40">
+        <ul className="flex justify-center items-center gap-10 py-3.5 text-sm font-bold uppercase tracking-wide text-[#1A1C1E]">
+          <li><Link to="/" className="hover:text-[#C49A6C] transition-colors">Início</Link></li>
+          <li><Link to="/categoria/feminino" className="hover:text-[#C49A6C] transition-colors">Feminino</Link></li>
+          <li><Link to="/categoria/masculino" className="hover:text-[#C49A6C] transition-colors">Masculino</Link></li>
+          <li><Link to="/categoria/esportes" className="hover:text-[#C49A6C] transition-colors">Esportes</Link></li>
+          <li><Link to="/categoria/marcas" className="hover:text-[#C49A6C] transition-colors">Marcas</Link></li>
+          <motion.li
+            animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="origin-center flex items-center"
+          >
+            <Link to="/categoria/ofertas" className="text-red-600 hover:text-red-700 transition-colors text-base font-extrabold tracking-widest drop-shadow-sm">OFERTAS</Link>
+          </motion.li>
+        </ul>
       </nav>
 
-      {/* Trust Badges Banner (Dark) */}
-      <div className="w-full bg-black text-white text-xs md:text-sm font-medium py-2 px-4 flex justify-between items-center overflow-x-auto hide-scrollbar whitespace-nowrap gap-8">
+      {/* Trust Badges Banner (Dark Charcoal) */}
+      <div className="w-full bg-[#111214] text-gray-300 text-xs md:text-sm font-medium py-2.5 px-4 flex justify-between items-center overflow-x-auto hide-scrollbar whitespace-nowrap gap-8">
         <div className="flex items-center gap-2 shrink-0">
-          <span className="font-bold">Troca grátis</span> em até 30 dias
+          <span className="font-bold text-white">Troca grátis</span> em até 30 dias
         </div>
         <div className="flex items-center gap-2 shrink-0 text-center flex-1 justify-center">
-          <span className="font-bold">Frete grátis</span> para compras acima de R$199,99*
+          <span className="font-bold text-white">Frete grátis</span> para compras acima de R$199,99*
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="font-bold">Parcele em até 10x</span> sem juros
+          <span className="font-bold text-white">Parcele em até 10x</span> sem juros
         </div>
       </div>
     </header>

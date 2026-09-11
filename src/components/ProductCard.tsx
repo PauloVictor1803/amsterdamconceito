@@ -1,19 +1,30 @@
 import { Product } from '../types';
 import { Heart, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
+import { useWishlist } from '../context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isFavorite = isInWishlist(product.id);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigating to product detail
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
+
   return (
     <motion.div 
       whileHover={{ y: -4 }}
-      className="group flex flex-col bg-white rounded-sm overflow-hidden relative border border-transparent hover:border-gray-200 hover:shadow-lg transition-all duration-300"
+      className="group flex flex-col bg-white rounded-sm overflow-hidden relative border border-gray-100 hover:border-[#C49A6C]/30 hover:shadow-xl transition-all duration-300"
     >
       {/* Image Container */}
-      <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
+      <Link to={`/produto/${product.handle}`} className="relative aspect-[3/4] bg-gray-100 overflow-hidden block">
         <img 
           src={product.image} 
           alt={product.name}
@@ -27,25 +38,30 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         )}
 
-        {/* Favorite Button */}
-        <button className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-500 hover:text-[#FF0054] hover:bg-white transition-colors z-10">
-          <Heart className="w-5 h-5" />
-        </button>
-
         {/* Discount Badge */}
         {product.discount && (
-          <div className="absolute bottom-0 left-0 right-0 bg-[#48D09B] text-black text-xs font-bold py-1.5 text-center">
+          <div className="absolute bottom-0 left-0 right-0 bg-[#C49A6C] text-white text-xs font-bold py-1.5 text-center">
             -{product.discount}% OFF
           </div>
         )}
-      </div>
+      </Link>
+
+      {/* Favorite Button (Overlay) */}
+      <button 
+        onClick={handleFavoriteClick}
+        className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors z-10 shadow-sm"
+      >
+        <Heart 
+          className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-[#C49A6C] text-[#C49A6C]' : 'text-gray-500 hover:text-[#C49A6C]'}`} 
+        />
+      </button>
 
       {/* Content Container */}
-      <div className="p-4 flex flex-col flex-1">
-        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+      <Link to={`/produto/${product.handle}`} className="p-4 flex flex-col flex-1 cursor-pointer">
+        <span className="text-[11px] font-bold text-[#C49A6C] uppercase tracking-wider mb-1">
           {product.brand}
         </span>
-        <h3 className="text-sm text-gray-800 line-clamp-2 leading-tight mb-2 flex-1">
+        <h3 className="text-sm text-gray-800 line-clamp-2 leading-tight mb-2 flex-1 group-hover:text-[#C49A6C] transition-colors">
           {product.name}
         </h3>
         
@@ -67,28 +83,28 @@ export default function ProductCard({ product }: ProductCardProps) {
               R$ {product.originalPrice.toFixed(2).replace('.', ',')}
             </span>
           )}
-          <span className="text-lg font-bold text-black">
+          <span className="text-lg font-bold text-[#1A1C1E]">
             R$ {product.currentPrice.toFixed(2).replace('.', ',')}
           </span>
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-gray-500">
             ou {product.installments}x de R$ {(product.currentPrice / product.installments).toFixed(2).replace('.', ',')} sem juros
           </span>
         </div>
 
         {/* Tags */}
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-          <span className="bg-[#FFE5E5] text-[#FF0054] text-[10px] font-bold px-2 py-1 rounded-sm uppercase">
+          <span className="bg-[#1A1C1E] text-[#C49A6C] text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">
             Ofertas
           </span>
           {product.isFull && (
-            <span className="flex items-center text-[10px] font-bold text-black uppercase">
+            <span className="flex items-center text-[10px] font-bold text-[#1A1C1E] uppercase">
               Enviado por 
-              <Zap className="w-3 h-3 ml-1 text-black fill-current" />
+              <Zap className="w-3 h-3 ml-1 text-[#C49A6C] fill-current" />
               <span className="italic ml-0.5">FULL</span>
             </span>
           )}
         </div>
-      </div>
+      </Link>
     </motion.div>
   );
 }
