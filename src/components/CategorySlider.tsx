@@ -25,24 +25,24 @@ const CATEGORIES: CategoryItem[] = [
     image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=300&q=80',
   },
   {
-    name: 'Esportes',
-    link: '/categoria/esportes',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=300&q=80',
+    name: 'Relógios',
+    link: '/categoria/relogios',
+    image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=300&q=80',
   },
   {
-    name: 'Tênis',
-    link: '/busca?q=tenis',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&q=80',
+    name: 'Óculos',
+    link: '/categoria/oculos',
+    image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&q=80',
   },
   {
-    name: 'Camisetas',
-    link: '/busca?q=camiseta',
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&q=80',
+    name: 'Acessórios',
+    link: '/categoria/acessorios',
+    image: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=300&q=80',
   },
   {
-    name: 'Streetwear',
-    link: '/categoria/streetwear',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=300&q=80',
+    name: 'Bonés',
+    link: '/categoria/bones',
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&q=80',
   },
 ];
 

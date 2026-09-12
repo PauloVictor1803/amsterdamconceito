@@ -19,6 +19,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
 
   const variantId = product.variants?.[0]?.id || product.variantId || `${product.id}-default`;
+  const defaultVariantTitle = product.variants?.[0]?.title;
+  const variantTitle = defaultVariantTitle && defaultVariantTitle !== 'Default Title' ? defaultVariantTitle : undefined;
+
   const isAlreadyInCart = items.some(item => item.id === variantId);
   const isFavorite = isInWishlist(product.id);
 
@@ -50,11 +53,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       title: product.name,
       price: product.currentPrice,
       image: imgSrc,
-      quantity: 1
+      quantity: 1,
+      variantTitle: variantTitle
     });
     setTimeout(() => {
       setAdding(false);
-      navigate('/carrinho');
     }, 400);
   };
 
@@ -76,7 +79,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           title: product.name,
           price: product.currentPrice,
           image: imgSrc,
-          quantity: 1
+          quantity: 1,
+          variantTitle: variantTitle
         });
         navigate('/carrinho');
       }
@@ -88,7 +92,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         title: product.name,
         price: product.currentPrice,
         image: imgSrc,
-        quantity: 1
+        quantity: 1,
+        variantTitle: variantTitle
       });
       navigate('/carrinho');
     } finally {
@@ -194,12 +199,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
           {product.totalInventory !== undefined && product.totalInventory > 0 ? (
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide flex items-center gap-1 border shadow-sm ${product.totalInventory < 5 ? 'bg-white border-orange-500 text-orange-600' : 'bg-white border-[#C49A6C]/30 text-[#C49A6C]'}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${product.totalInventory < 5 ? 'bg-orange-500' : 'bg-[#C49A6C]'}`}></span>
               {product.totalInventory < 5 ? `Apenas ${product.totalInventory}` : `${product.totalInventory > 99 ? '99+' : product.totalInventory} em estoque`}
             </span>
           ) : product.totalInventory === 0 ? (
             <span className="bg-white border border-red-500 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide flex items-center gap-1 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
               Esgotado
             </span>
           ) : null}
@@ -229,15 +232,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
 
-      {product.isFull && (
-        <div className="px-3 sm:px-4 pb-3 flex justify-center border-t border-gray-50 pt-2 mt-1 mx-2">
-          <span className="flex items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-            Envio 
-            <Zap className="w-3 h-3 mx-1 text-[#C49A6C] fill-current" />
-            <span className="italic text-[#1A1C1E]">FULL</span>
-          </span>
-        </div>
-      )}
     </motion.div>
   );
 }

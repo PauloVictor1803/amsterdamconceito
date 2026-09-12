@@ -88,9 +88,16 @@ export default function CartPage() {
               {/* Detalhes do Produto */}
               <div className="flex-1 flex flex-col justify-between py-1">
                 <div className="flex justify-between items-start gap-2">
-                  <h3 className="font-bold text-[#1A1C1E] text-sm md:text-base leading-snug line-clamp-2 pr-6">
-                    {item.title}
-                  </h3>
+                  <div className="flex flex-col gap-1 pr-6">
+                    <h3 className="font-bold text-[#1A1C1E] text-sm md:text-base leading-snug line-clamp-2">
+                      {item.title}
+                    </h3>
+                    {item.variantTitle && (
+                      <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-sm self-start">
+                        {item.variantTitle}
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Botão Remover (Lixeira) ajustado */}
                   <button 

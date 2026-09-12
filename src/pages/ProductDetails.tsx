@@ -69,6 +69,7 @@ export default function ProductDetails() {
   const availableForSale = activeVariant?.availableForSale ?? product?.availableForSale ?? true;
   const quantityAvailable = activeVariant?.quantityAvailable ?? product?.quantityAvailable ?? null;
   const variantIdToCart = activeVariant?.id || product?.variantId || '';
+  const variantTitle = activeVariant?.title && activeVariant.title !== 'Default Title' ? activeVariant.title : undefined;
 
   const handleAdd = () => {
     setAdding(true);
@@ -78,12 +79,13 @@ export default function ProductDetails() {
       title: product.name,
       price: currentPrice,
       image: product.image,
-      quantity: quantity
+      quantity: quantity,
+      variantTitle: variantTitle
     });
     
-    // Quick success feedback then redirect to cart
+    // Quick success feedback without redirect
     setTimeout(() => {
-      navigate('/carrinho');
+      setAdding(false);
     }, 400);
   };
 
@@ -230,19 +232,11 @@ export default function ProductDetails() {
           {/* Relocated Stock Indicator */}
           <div className="mb-6 w-full flex justify-start">
             {availableForSale === false || quantityAvailable === 0 ? (
-              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-sm border border-red-200 shadow-sm w-full justify-center">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-sm border border-[#1A1C1E] shadow-sm w-full justify-center">
                 <span className="text-xs font-bold uppercase tracking-wide">Produto Esgotado no Momento</span>
               </div>
             ) : quantityAvailable != null ? (
-              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-sm border shadow-sm w-full justify-center transition-all ${quantityAvailable < 5 ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-gray-50 text-[#C49A6C] border-gray-200'}`}>
-                <span className="relative flex h-3 w-3">
-                  {quantityAvailable < 5 && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>}
-                  <span className={`relative inline-flex rounded-full h-3 w-3 ${quantityAvailable < 5 ? 'bg-orange-500' : 'bg-[#C49A6C]'}`}></span>
-                </span>
+              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-sm border border-[#1A1C1E] shadow-sm w-full justify-center transition-all ${quantityAvailable < 5 ? 'bg-orange-50 text-orange-600' : 'bg-white text-[#997349]'}`}>
                 <span className="text-xs font-bold uppercase tracking-wide">
                   {quantityAvailable < 5 ? `🔥 Corra! Apenas ${quantityAvailable} peças disponíveis` : `${quantityAvailable > 99 ? '99+' : quantityAvailable} itens em estoque`}
                 </span>

@@ -415,16 +415,16 @@ export default function Header() {
                     <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Acessórios</span>
                     <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
                   </Link>
-                  <Link to="/categoria/calcados" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Calçados</span>
+                  <Link to="/categoria/relogios" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
+                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Relógios</span>
                     <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
                   </Link>
-                  <Link to="/categoria/esportes" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Esportes</span>
+                  <Link to="/categoria/oculos" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
+                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Óculos</span>
                     <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
                   </Link>
-                  <Link to="/categoria/marcas" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Marcas</span>
+                  <Link to="/categoria/bones" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
+                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Bonés</span>
                     <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
                   </Link>
                   <Link to="/categoria/ofertas" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-[#C49A6C]/5 transition-colors group">
