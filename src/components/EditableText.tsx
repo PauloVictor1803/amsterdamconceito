@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { useStoreConfig } from '../context/StoreConfigContext';
 
 interface EditableTextProps {
@@ -19,10 +20,12 @@ export const EditableText: React.FC<EditableTextProps> = ({ field, defaultText =
     }
   }
 
+  const sanitizedHTML = DOMPurify.sanitize(displayValue);
+
   return (
     <span 
       className={className} 
-      dangerouslySetInnerHTML={{ __html: displayValue }} 
+      dangerouslySetInnerHTML={{ __html: sanitizedHTML }} 
     />
   );
 };
