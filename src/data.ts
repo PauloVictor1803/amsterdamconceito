@@ -119,6 +119,8 @@ export const categories = [
   'Todas as categorias',
   'Feminino',
   'Masculino',
+  'Acessórios',
+  'Calçados',
   'Infantil',
   'Beleza',
   'Esporte',

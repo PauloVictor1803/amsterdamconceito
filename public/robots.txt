@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /carrinho
+Disallow: /sacola
+Disallow: /busca*
+Disallow: /*?*sort=*
+Disallow: /*?*filter=*
+
+Sitemap: https://amsterdamconceito.com.br/sitemap.xml

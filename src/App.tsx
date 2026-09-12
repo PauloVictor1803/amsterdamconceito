@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Header from './components/Header';
@@ -11,15 +11,32 @@ import CartPage from './pages/Cart';
 import WishlistPage from './pages/Wishlist';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
+import NotFoundPage from './pages/NotFound';
+import AdminPlaceholder from './pages/AdminPlaceholder';
 import WhatsAppFloating from './components/WhatsAppFloating';
 import CookieConsent from './components/CookieConsent';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const navType = useNavigationType();
+
+  useEffect(() => {
+    // Only scroll to top on new navigation (PUSH or REPLACE), not when going back (POP)
+    if (navType !== 'POP') {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, navType]);
+
+  return null;
+}
 
 export default function App() {
   return (
     <CartProvider>
       <WishlistProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <div className="min-h-screen flex flex-col font-sans text-[#1A1C1E]">
             <Header />
             
@@ -33,6 +50,8 @@ export default function App() {
                 <Route path="/favoritos" element={<WishlistPage />} />
                 <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
                 <Route path="/termos-de-uso" element={<TermsOfUse />} />
+                <Route path="/admin" element={<AdminPlaceholder />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </main>
 

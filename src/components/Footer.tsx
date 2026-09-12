@@ -1,5 +1,6 @@
 import { MapPin, Phone, Instagram, Facebook, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 
 export default function Footer() {
   return (
@@ -9,10 +10,22 @@ export default function Footer() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-1.5 text-2xl font-bold tracking-widest text-white mb-2">
             <span className="font-light text-gray-200">AMT</span>
-            <svg viewBox="0 0 15 36" className="h-7 w-auto text-[#C49A6C] fill-current mx-1 drop-shadow-sm">
-              <rect x="0" y="0" width="3.5" height="24" rx="1" />
-              <rect x="5.5" y="6" width="3.5" height="24" rx="1" />
-              <rect x="11" y="12" width="3.5" height="24" rx="1" />
+            <svg viewBox="0 0 15 36" className="h-7 w-auto text-[#C49A6C] fill-current mx-1 drop-shadow-sm overflow-visible">
+              <motion.rect 
+                x="0" y="0" width="3.5" height="24" rx="1" 
+                animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
+                transition={{ duration: 1.5, delay: 0.5, ease: "easeInOut" }} 
+              />
+              <motion.rect 
+                x="5.5" y="6" width="3.5" height="24" rx="1" 
+                animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
+                transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }} 
+              />
+              <motion.rect 
+                x="11" y="12" width="3.5" height="24" rx="1" 
+                animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
+                transition={{ duration: 1.5, delay: 0.9, ease: "easeInOut" }} 
+              />
             </svg>
             <span>CONCEITO</span>
           </div>

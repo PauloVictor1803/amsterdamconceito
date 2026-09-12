@@ -1,4 +1,5 @@
 import { Product } from '../types';
+import { products as localProducts } from '../data';
 
 const domain = import.meta.env.VITE_SHOPIFY_STORE_DOMAIN;
 const token = import.meta.env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
@@ -74,93 +75,118 @@ function mapShopifyProduct(node: any): Product {
     availableForSale: variantNode?.availableForSale !== false,
     quantityAvailable: variantNode?.quantityAvailable,
     options,
-    variants
+    variants,
+    tags: node.tags || [],
+    category: node.productType || ''
   };
 }
 
 export async function getShopifyProducts(): Promise<Product[]> {
-  const query = `
-    {
-      products(first: 8) {
-        edges {
-          node {
-            id
-            title
-            handle
-            vendor
-            options {
-              name
-              values
-            }
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  title
-                  price { amount }
-                  compareAtPrice { amount }
-                  availableForSale
-                  selectedOptions {
-                    name
-                    value
-                  }
-                }
-              }
-            }
-            images(first: 2) {
-              edges {
-                node { url }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-  const data = await fetchShopify(query);
-  if (!data?.products?.edges) return [];
-  return data.products.edges.map(({ node }: any) => mapShopifyProduct(node));
-}
-
-export async function getShopifyProductByHandle(handle: string): Promise<Product | null> {
-  const query = `
-    query getProduct($handle: String!) {
-      product(handle: $handle) {
-        id
-        title
-        handle
-        vendor
-        descriptionHtml
-        options {
-          name
-          values
-        }
-        variants(first: 20) {
+  try {
+    const query = `
+      {
+        products(first: 50) {
           edges {
             node {
               id
               title
-              price { amount }
-              compareAtPrice { amount }
-              availableForSale
-              selectedOptions {
+              handle
+              vendor
+              productType
+              tags
+              options {
                 name
-                value
+                values
+              }
+              variants(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    price { amount }
+                    compareAtPrice { amount }
+                    availableForSale
+                    selectedOptions {
+                      name
+                      value
+                    }
+                  }
+                }
+              }
+              images(first: 5) {
+                edges {
+                  node { url }
+                }
               }
             }
           }
         }
-        images(first: 6) {
-          edges {
-            node { url }
+      }
+    `;
+    const data = await fetchShopify(query);
+    const shopifyItems = (data?.products?.edges || []).map(({ node }: any) => mapShopifyProduct(node));
+    
+    if (shopifyItems.length > 0) {
+      // Priorizar os produtos reais da Shopify no topo, evitando duplicatas com o catálogo local
+      const shopifyHandles = new Set(shopifyItems.map((p: Product) => p.handle));
+      const remainingLocal = localProducts.filter(p => !shopifyHandles.has(p.handle || p.id));
+      return [...shopifyItems, ...remainingLocal];
+    }
+    return localProducts;
+  } catch (err) {
+    console.error("Erro ao carregar produtos:", err);
+    return localProducts;
+  }
+}
+
+export async function getShopifyProductByHandle(handle: string): Promise<Product | null> {
+  try {
+    const query = `
+      query getProduct($handle: String!) {
+        product(handle: $handle) {
+          id
+          title
+          handle
+          vendor
+          descriptionHtml
+          options {
+            name
+            values
+          }
+          variants(first: 20) {
+            edges {
+              node {
+                id
+                title
+                price { amount }
+                compareAtPrice { amount }
+                availableForSale
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+          }
+          images(first: 6) {
+            edges {
+              node { url }
+            }
           }
         }
       }
+    `;
+    const data = await fetchShopify(query, { handle });
+    if (data?.product) {
+      return mapShopifyProduct(data.product);
     }
-  `;
-  const data = await fetchShopify(query, { handle });
-  if (!data?.product) return null;
-  return mapShopifyProduct(data.product);
+  } catch (err) {
+    console.warn("Erro ao buscar produto por handle na Shopify:", err);
+  }
+  
+  // Fallback para o catálogo local caso o produto seja do catálogo de demonstração
+  const localMatch = localProducts.find(p => (p.handle || p.id) === handle || p.id === handle);
+  return localMatch || null;
 }
 
 export async function createShopifyCheckout(lines: { variantId: string, quantity: number }[]) {

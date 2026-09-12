@@ -24,9 +24,14 @@ export default function Search() {
 
   const filteredProducts = useMemo(() => {
     if (!query) return [];
+    const cleanQuery = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
     return products.filter((product) => {
-      return product.name.toLowerCase().includes(query.toLowerCase()) || 
-             product.brand.toLowerCase().includes(query.toLowerCase());
+      const cleanName = product.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const cleanBrand = (product.brand || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const cleanDesc = (product.description || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return cleanName.includes(cleanQuery) || 
+             cleanBrand.includes(cleanQuery) ||
+             cleanDesc.includes(cleanQuery);
     });
   }, [products, query]);
 
