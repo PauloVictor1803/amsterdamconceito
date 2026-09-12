@@ -64,7 +64,7 @@ export default function CategorySlider() {
 
       <div className="relative -mx-4 px-4 lg:-mx-8 lg:px-8">
         <div
-          className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none scroll-smooth touch-pan-x"
+          className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none scroll-smooth touch-pan-x md:justify-center"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {CATEGORIES.map((cat) => (
