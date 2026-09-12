@@ -8,6 +8,7 @@ import CategorySlider from '../components/CategorySlider';
 import Pagination from '../components/Pagination';
 import { getShopifyProducts } from '../lib/shopify';
 import { Product } from '../types';
+import { EditableText } from '../components/EditableText';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -87,16 +88,16 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Link to="/categoria/ofertas" className="block border border-[#2A2D34] bg-[#1A1C1E] text-[#C49A6C] text-center py-3.5 md:py-4 font-bold text-xs md:text-sm lg:text-base hover:bg-[#2A2D34] transition-colors shadow-sm rounded-sm">
-            A PARTIR DE R$ 19,99
+            <EditableText field="botao_preco_1" defaultText="A PARTIR DE R$ 19,99" />
           </Link>
           <Link to="/categoria/ofertas" className="block border border-[#2A2D34] bg-[#1A1C1E] text-[#C49A6C] text-center py-3.5 md:py-4 font-bold text-xs md:text-sm lg:text-base hover:bg-[#2A2D34] transition-colors shadow-sm rounded-sm">
-            A PARTIR DE R$ 49,99
+            <EditableText field="botao_preco_2" defaultText="A PARTIR DE R$ 49,99" />
           </Link>
           <Link to="/categoria/ofertas" className="block border border-[#2A2D34] bg-[#1A1C1E] text-[#C49A6C] text-center py-3.5 md:py-4 font-bold text-xs md:text-sm lg:text-base hover:bg-[#2A2D34] transition-colors shadow-sm rounded-sm">
-            A PARTIR DE R$ 69,99
+            <EditableText field="botao_preco_3" defaultText="A PARTIR DE R$ 69,99" />
           </Link>
           <Link to="/categoria/ofertas" className="block border border-[#2A2D34] bg-[#1A1C1E] text-[#C49A6C] text-center py-3.5 md:py-4 font-bold text-xs md:text-sm lg:text-base hover:bg-[#2A2D34] transition-colors shadow-sm rounded-sm">
-            A PARTIR DE R$ 99,99
+            <EditableText field="botao_preco_4" defaultText="A PARTIR DE R$ 99,99" />
           </Link>
         </div>
       </section>
@@ -191,7 +192,7 @@ export default function Home() {
           <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full border border-[#C49A6C]/20 opacity-50"></div>
           
           <h2 className="text-3xl md:text-5xl font-bold uppercase mb-4 relative z-10 text-white">
-            Traga seu estilo<br/>para a <span className="text-[#C49A6C]">Amsterdam</span>
+            <EditableText field="texto_banner_traga_seu_estilo" defaultText="Traga seu estilo<br/>para a <span class='text-[#C49A6C]'>Amsterdam</span>" />
           </h2>
           <p className="max-w-2xl mx-auto text-gray-400 mb-8 relative z-10">A loja conceito de moda com as melhores marcas, estética única e condições exclusivas para você.</p>
           <button 

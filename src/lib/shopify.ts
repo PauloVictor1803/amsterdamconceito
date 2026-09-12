@@ -55,6 +55,30 @@ function mapShopifyProduct(node: any): Product {
     };
   }) || [];
 
+  // Extrair parcelas das tags (ex: 'parcelas:6' ou 'parcelas:12') ou metafield
+  let installments = 10;
+  const parcelasTag = node.tags?.find((t: string) => t.toLowerCase().startsWith('parcelas:'));
+  if (parcelasTag) {
+    const parsed = parseInt(parcelasTag.split(':')[1], 10);
+    if (!isNaN(parsed) && parsed > 0) installments = parsed;
+  } else if (node.parcelasMetafield?.value) {
+    const parsed = parseInt(node.parcelasMetafield.value, 10);
+    if (!isNaN(parsed) && parsed > 0) installments = parsed;
+  }
+
+  // Badge dinâmico por tags (ex: 'ofertas', 'tendencia', 'mais-vistos', 'imperdivel', 'novo')
+  let badge = 'Ofertas';
+  const lowerTags = (node.tags || []).map((t: string) => t.toLowerCase());
+  if (lowerTags.includes('imperdivel') || lowerTags.includes('imperdível')) {
+    badge = 'Imperdível';
+  } else if (lowerTags.includes('tendencia') || lowerTags.includes('tendência')) {
+    badge = 'Tendência';
+  } else if (lowerTags.includes('mais-visto') || lowerTags.includes('mais-vistos') || lowerTags.includes('mais vistos')) {
+    badge = 'Mais Visto';
+  } else if (lowerTags.includes('novo') || lowerTags.includes('novidade')) {
+    badge = 'Novidade';
+  }
+
   return {
     id: node.id,
     handle: node.handle,
@@ -69,7 +93,8 @@ function mapShopifyProduct(node: any): Product {
     discount: discount > 0 ? discount : undefined,
     rating: 0,
     reviews: 0,
-    installments: 10,
+    installments,
+    badge,
     isFull: true,
     description: node.descriptionHtml || node.description || '',
     availableForSale: variantNode?.availableForSale !== false,
@@ -238,3 +263,45 @@ export async function createShopifyCheckout(lines: { variantId: string, quantity
   const data = await fetchShopify(query, variables);
   return data?.cartCreate?.cart?.checkoutUrl || null;
 }
+
+export async function getStoreConfig(): Promise<Record<string, string | { url: string, altText?: string }> | null> {
+  const query = `
+    query ObterDadosHome {
+      metaobject(handle: { type: "configuracoes_loja", handle: "geral" }) {
+        fields {
+          key
+          value
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  try {
+    const data = await fetchShopify(query);
+    if (data?.metaobject?.fields) {
+      const config: Record<string, string | { url: string, altText?: string }> = {};
+      data.metaobject.fields.forEach((field: any) => {
+        if (field.reference?.image) {
+          config[field.key] = {
+            url: field.reference.image.url,
+            altText: field.reference.image.altText || ''
+          };
+        } else {
+          config[field.key] = field.value;
+        }
+      });
+      return config;
+    }
+  } catch (err) {
+    console.warn("Erro ao buscar configuracoes_loja na Shopify:", err);
+  }
+  return null;
+}
+

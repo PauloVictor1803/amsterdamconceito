@@ -130,10 +130,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      {/* Selo Ofertas */}
+      {/* Selo Dinâmico (Ofertas, Tendência, Mais Visto, etc.) */}
       <div className="absolute top-2 left-2 z-10 pointer-events-none">
         <span className="bg-[#1A1C1E] text-[#C49A6C] text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide shadow-sm">
-          Ofertas
+          {product.badge || 'Ofertas'}
         </span>
       </div>
 

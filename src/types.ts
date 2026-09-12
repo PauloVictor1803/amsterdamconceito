@@ -18,6 +18,9 @@ export interface Product {
   availableForSale?: boolean;
   totalInventory?: number;
   quantityAvailable?: number;
+  badge?: string;
+  tags?: string[];
+  category?: string;
   options?: { name: string; values: string[] }[];
   variants?: {
     id: string;

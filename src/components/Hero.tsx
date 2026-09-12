@@ -1,73 +1,13 @@
 import { motion } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { EditableText } from './EditableText';
+import { useStoreConfig } from '../context/StoreConfigContext';
 
 export default function Hero() {
-  const [heroData, setHeroData] = useState({
-    title: 'O Seu\nEstilo',
-    subtitle: 'Vista-se de',
-    highlight: 'Confiança',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80'
-  });
-
-  useEffect(() => {
-    const updateFromStorage = () => {
-      const saved = localStorage.getItem('site_settings');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          
-          // Dividindo o heroTitle em duas linhas (se houver espaço) ou usando inteiro
-          let formattedTitle = parsed.heroTitle || 'O Seu\nEstilo';
-          if (parsed.heroTitle && parsed.heroTitle.includes(' ')) {
-             const parts = parsed.heroTitle.split(' ');
-             const firstPart = parts.slice(0, Math.ceil(parts.length/2)).join(' ');
-             const secondPart = parts.slice(Math.ceil(parts.length/2)).join(' ');
-             formattedTitle = `${firstPart}\n${secondPart}`;
-          }
-
-          // Dividindo o subtitle em normal e destaque (usando a última palavra como destaque)
-          let normalSub = 'Vista-se de';
-          let highlightSub = 'Confiança';
-          
-          if (parsed.heroSubtitle) {
-            const parts = parsed.heroSubtitle.split(' ');
-            if (parts.length > 1) {
-              highlightSub = parts.pop() || '';
-              normalSub = parts.join(' ');
-            } else {
-              normalSub = '';
-              highlightSub = parsed.heroSubtitle;
-            }
-          }
-
-          setHeroData({
-            title: formattedTitle,
-            subtitle: normalSub,
-            highlight: highlightSub,
-            image: parsed.heroImageUrl || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80'
-          });
-        } catch (e) {
-          console.error("Erro ao ler as configurações:", e);
-        }
-      }
-    };
-
-    updateFromStorage();
-    // Escuta evento customizado para atualizar na mesma aba sem refresh
-    window.addEventListener('storage', updateFromStorage);
-    window.addEventListener('settings_updated', updateFromStorage);
-    return () => {
-      window.removeEventListener('storage', updateFromStorage);
-      window.removeEventListener('settings_updated', updateFromStorage);
-    };
-  }, []);
-
-  const handleScrollToProducts = () => {
-    const section = document.getElementById('produtos');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const { config } = useStoreConfig();
+  
+  const heroImage = 
+    (typeof config?.hero_image === 'object' ? config.hero_image?.url : undefined) || 
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80';
 
   return (
     <div className="w-full relative overflow-hidden bg-[#1A1C1E] text-white border-b border-[#2A2D34]">
@@ -85,13 +25,11 @@ export default function Hero() {
             className="w-full"
           >
             <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.95] tracking-tighter mb-4 text-white drop-shadow-sm whitespace-pre-line">
-              {heroData.title}
+              <EditableText field="texto_banner_principal_titulo" defaultText="O SEU<br/>ESTILO" />
             </h2>
             <div className="flex flex-col md:flex-row md:items-end justify-center md:justify-start gap-1 md:gap-4 mb-8">
-              {heroData.subtitle && (
-                <span className="text-2xl sm:text-3xl md:text-5xl font-light uppercase tracking-wide text-gray-400">{heroData.subtitle}</span>
-              )}
-              <span className="text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-wider text-[#C49A6C]">{heroData.highlight}</span>
+              <EditableText field="texto_banner_principal_subtitulo" defaultText="VISTA-SE DE" className="text-2xl sm:text-3xl md:text-5xl font-light uppercase tracking-wide text-gray-400" />
+              <EditableText field="texto_banner_principal_destaque" defaultText="CONFIANÇA" className="text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-wider text-[#C49A6C]" />
             </div>
             
             <button 
@@ -106,7 +44,7 @@ export default function Hero() {
               }}
               className="bg-[#C49A6C] text-[#1A1C1E] px-8 py-4 text-sm font-bold uppercase tracking-wide hover:bg-[#b58b5d] hover:scale-105 transition-all shadow-lg rounded-sm"
             >
-              Ver Produtos &gt;
+              <EditableText field="texto_banner_principal_botao" defaultText="Ver Produtos &gt;" />
             </button>
           </motion.div>
         </div>
@@ -114,12 +52,12 @@ export default function Hero() {
         {/* Hero Image */}
         <div className="w-full md:w-1/2 relative z-10 flex justify-center md:justify-end px-4 md:px-0">
           <motion.img 
-            key={heroData.image} // Força a re-renderização/animação se a imagem mudar
+            key={heroImage}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            src={heroData.image} 
-            alt="Modelos de moda" 
+            src={heroImage} 
+            alt="Hero Image" 
             className="w-full max-w-sm md:max-w-lg object-cover aspect-[4/5] object-center rounded-sm shadow-2xl border border-[#2A2D34]"
           />
         </div>

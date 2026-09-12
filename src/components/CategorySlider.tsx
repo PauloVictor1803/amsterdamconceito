@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { EditableText } from './EditableText';
 
 interface CategoryItem {
   name: string;
@@ -55,7 +56,7 @@ export default function CategorySlider() {
     <section className="py-6 max-w-7xl mx-auto px-4 lg:px-8 w-full">
       <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
         <h3 className="text-xs md:text-sm font-bold uppercase tracking-wider text-gray-700">
-          Navegue por Categorias
+          <EditableText field="titulo_barra_categorias" defaultText="Navegue por Categorias" />
         </h3>
         <span className="text-[11px] text-gray-400 font-medium">
           Deslize para o lado

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { EditableText } from './EditableText';
 import { X, MapPin, ArrowUp, Instagram, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import logoWhatsapp from './logo_whatsapp.png';
@@ -89,8 +90,8 @@ export default function WhatsAppFloating() {
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bold text-[14px]">Delfino Magalhães</span>
-                    <span className="text-[12px] opacity-80">(38) 99917-4333</span>
+                    <span className="font-bold text-[14px]"><EditableText field="whatsapp_loja_1_nome" defaultText="Delfino Magalhães" /></span>
+                    <span className="text-[12px] opacity-80"><EditableText field="whatsapp_loja_1_numero" defaultText="(38) 99917-4333" /></span>
                   </div>
                 </a>
                 
@@ -106,8 +107,8 @@ export default function WhatsAppFloating() {
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bold text-[14px]">Santos Reis</span>
-                    <span className="text-[12px] opacity-80">(38) 99886-9733</span>
+                    <span className="font-bold text-[14px]"><EditableText field="whatsapp_loja_2_nome" defaultText="Santos Reis" /></span>
+                    <span className="text-[12px] opacity-80"><EditableText field="whatsapp_loja_2_numero" defaultText="(38) 99886-9733" /></span>
                   </div>
                 </a>
 
