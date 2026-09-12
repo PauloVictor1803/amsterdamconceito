@@ -15,7 +15,8 @@ export default function Category() {
   useEffect(() => {
     async function loadProducts() {
       setLoading(true);
-      const data = await getShopifyProducts();
+      // Fetch category specific products or all if no id
+      const data = await getShopifyProducts(id);
       setProducts(data);
       setLoading(false);
     }
@@ -30,14 +31,14 @@ export default function Category() {
       const targetId = id.toLowerCase();
       
       // Regra especial para a categoria "Ofertas"
-      if (targetId === 'ofertas') return (product.discount && product.discount > 0);
+      if (targetId === 'ofertas') return Boolean(product.discount && product.discount > 0);
       
       // Busca em múltiplos campos (Nome, Marca, Tags e Categoria)
-      const inName = product.name.toLowerCase().includes(targetId);
-      const inBrand = product.brand.toLowerCase().includes(targetId);
+      const inName = product.name?.toLowerCase().includes(targetId);
+      const inBrand = product.brand?.toLowerCase().includes(targetId);
       const inTags = product.tags?.some(tag => tag.toLowerCase().includes(targetId)) || false;
       const inCategory = product.category?.toLowerCase().includes(targetId) || false;
-      const inDepartment = product.department?.toLowerCase().includes(targetId) || false;
+      const inDepartment = (product as any).department?.toLowerCase().includes(targetId) || false;
 
       return inName || inBrand || inTags || inCategory || inDepartment;
     });

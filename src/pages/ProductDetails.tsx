@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getShopifyProductByHandle } from '../lib/shopify';
+import { getShopifyProductByHandle, createShopifyCheckout } from '../lib/shopify';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { ShieldCheck, Truck, ArrowLeft, Minus, Plus, Star } from 'lucide-react';
@@ -87,6 +87,24 @@ export default function ProductDetails() {
     }, 400);
   };
 
+  const handleBuyNow = async () => {
+    setAdding(true);
+    try {
+      const url = await createShopifyCheckout([
+        { variantId: variantIdToCart, quantity: quantity }
+      ]);
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert("Ocorreu um erro ao gerar o checkout rápido.");
+        setAdding(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setAdding(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 lg:px-8 py-8 md:py-12">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-500 hover:text-[#1A1C1E] transition-colors mb-6 md:mb-10 text-sm font-bold uppercase tracking-wide">
@@ -134,15 +152,9 @@ export default function ProductDetails() {
             {product.name}
           </h1>
           
-          <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-200 w-full">
-            <div className="flex text-yellow-400 gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <svg key={i} className={`w-4 h-4 fill-current`} viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
-            </div>
-            <span className="text-sm text-gray-500 hover:text-[#C49A6C] underline cursor-pointer transition-colors">{product.reviews} avaliações</span>
+          <div className="mb-8 pb-6 border-b border-gray-200 w-full">
+            {/* Judge.me Preview Badge */}
+            <div className='jdgm-widget jdgm-preview-badge' data-id={product.id.split('/').pop()}></div>
           </div>
 
           <div className="flex flex-col mb-10">
@@ -172,10 +184,10 @@ export default function ProductDetails() {
                         setSelectedOptions(prev => ({ ...prev, [option.name]: val }));
                         setQuantity(1); // Reset quantity when changing variant
                       }}
-                      className={`border px-5 py-2.5 text-sm font-semibold rounded-sm transition-all
+                      className={`relative overflow-hidden border px-6 py-3 text-sm font-bold uppercase tracking-wider rounded-sm transition-all duration-300
                         ${selectedOptions[option.name] === val 
-                          ? 'border-[#1A1C1E] bg-[#1A1C1E] text-white shadow-md' 
-                          : 'border-gray-300 text-gray-700 hover:border-[#C49A6C] hover:text-[#C49A6C]'
+                          ? 'border-[#C49A6C] bg-[#1A1C1E] text-[#C49A6C] shadow-[0_4px_12px_rgba(0,0,0,0.1)]' 
+                          : 'border-gray-200 text-gray-600 bg-white hover:border-[#C49A6C] hover:text-[#C49A6C] hover:bg-[#FDFBF9]'
                         }
                       `}
                     >
@@ -189,14 +201,9 @@ export default function ProductDetails() {
 
           <div className="flex flex-col mb-8 w-full">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-bold text-[#1A1C1E] uppercase tracking-wide">Quantidade</span>
-              {availableForSale !== false && quantityAvailable != null && (
-                <span className={`text-xs font-bold ${quantityAvailable < 5 ? 'text-red-500' : 'text-green-600'}`}>
-                  {quantityAvailable > 0 ? `${quantityAvailable} em estoque` : 'Esgotado'}
-                </span>
-              )}
+              <span className={`text-sm font-bold uppercase tracking-wide ${availableForSale === false || quantityAvailable === 0 ? 'text-gray-400' : 'text-[#1A1C1E]'}`}>Quantidade</span>
             </div>
-            <div className="flex items-center border border-gray-300 rounded-sm w-32 h-12">
+            <div className={`flex items-center border rounded-sm w-32 h-12 ${availableForSale === false || quantityAvailable === 0 ? 'border-gray-200 opacity-50 bg-gray-50' : 'border-gray-300'}`}>
               <button 
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-10 h-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
@@ -204,7 +211,7 @@ export default function ProductDetails() {
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <div className="flex-1 h-full flex items-center justify-center border-l border-r border-gray-300 font-bold text-[#1A1C1E]">
+              <div className={`flex-1 h-full flex items-center justify-center border-l border-r border-gray-300 font-bold ${availableForSale === false || quantityAvailable === 0 ? 'text-gray-400' : 'text-[#1A1C1E]'}`}>
                 {quantity}
               </div>
               <button 
@@ -219,18 +226,49 @@ export default function ProductDetails() {
               </button>
             </div>
           </div>
+          
+          {/* Relocated Stock Indicator */}
+          <div className="mb-6 w-full flex justify-start">
+            {availableForSale === false || quantityAvailable === 0 ? (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-sm border border-red-200 shadow-sm w-full justify-center">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <span className="text-xs font-bold uppercase tracking-wide">Produto Esgotado no Momento</span>
+              </div>
+            ) : quantityAvailable != null ? (
+              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-sm border shadow-sm w-full justify-center transition-all ${quantityAvailable < 5 ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-gray-50 text-[#C49A6C] border-gray-200'}`}>
+                <span className="relative flex h-3 w-3">
+                  {quantityAvailable < 5 && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>}
+                  <span className={`relative inline-flex rounded-full h-3 w-3 ${quantityAvailable < 5 ? 'bg-orange-500' : 'bg-[#C49A6C]'}`}></span>
+                </span>
+                <span className="text-xs font-bold uppercase tracking-wide">
+                  {quantityAvailable < 5 ? `🔥 Corra! Apenas ${quantityAvailable} peças disponíveis` : `${quantityAvailable > 99 ? '99+' : quantityAvailable} itens em estoque`}
+                </span>
+              </div>
+            ) : null}
+          </div>
 
-          <button 
-            onClick={handleAdd}
-            disabled={adding || !availableForSale || quantityAvailable === 0}
-            className="w-full bg-[#1A1C1E] text-[#C49A6C] hover:bg-[#C49A6C] hover:text-white transition-colors py-4 px-8 font-bold uppercase tracking-widest text-sm shadow-md flex items-center justify-center gap-2 mb-8 disabled:opacity-50 disabled:hover:bg-[#1A1C1E] disabled:hover:text-[#C49A6C] disabled:cursor-not-allowed"
-          >
-            {!availableForSale || quantityAvailable === 0 
-              ? 'Indisponível' 
-              : adding 
-                ? 'Adicionando...' 
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3 mb-8 w-full">
+            <button 
+              onClick={handleAdd}
+              disabled={adding || !availableForSale || quantityAvailable === 0}
+              className="w-full bg-white border-2 border-[#1A1C1E] text-[#1A1C1E] hover:bg-[#1A1C1E] hover:text-white transition-all py-4 px-8 font-bold uppercase tracking-widest text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-[#1A1C1E] disabled:cursor-not-allowed"
+            >
+              {!availableForSale || quantityAvailable === 0 
+                ? 'Indisponível' 
                 : 'Adicionar à Sacola'}
-          </button>
+            </button>
+            <button 
+              onClick={handleBuyNow}
+              disabled={adding || !availableForSale || quantityAvailable === 0}
+              className="w-full bg-[#1A1C1E] text-[#C49A6C] hover:bg-[#C49A6C] hover:text-white transition-all py-4 px-8 font-extrabold uppercase tracking-widest text-sm shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-[#1A1C1E] disabled:hover:text-[#C49A6C] disabled:cursor-not-allowed"
+            >
+              {adding ? 'Processando...' : 'Comprar Agora'}
+            </button>
+          </div>
 
           <div className="w-full bg-[#F4F4F5] border border-gray-200/60 rounded-sm p-5 flex flex-col gap-4 mb-10">
             <div className="flex items-start gap-3 text-sm text-gray-700">
@@ -251,46 +289,9 @@ export default function ProductDetails() {
               dangerouslySetInnerHTML={{ __html: product.description || 'Nenhuma descrição fornecida para este produto.' }}
             />
             
-            {/* Avaliações reais */}
-            <h3 className="font-bold text-[#1A1C1E] uppercase tracking-wide mb-5 border-b border-gray-200 pb-3">Avaliações de Clientes ({product.reviews})</h3>
-            <div className="flex flex-col gap-6">
-              <div className="flex items-center gap-4 p-5 bg-[#F9F9F9] rounded-sm border border-gray-100">
-                <div className="flex flex-col items-center justify-center w-24 border-r border-gray-200 pr-4">
-                  <span className="text-3xl font-extrabold text-[#1A1C1E]">4.8</span>
-                  <div className="flex text-yellow-400 mt-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-3 h-3 ${i < 4 ? 'fill-current' : i === 4 ? 'fill-current opacity-50' : ''}`} />
-                    ))}
-                  </div>
-                </div>
-                <div className="flex-1 pl-2">
-                  <p className="text-sm text-gray-600">Baseado em <strong>{product.reviews}</strong> avaliações reais de clientes que compraram este produto.</p>
-                </div>
-              </div>
-              
-              {/* Review Mocks for Realism */}
-              <div className="border-b border-gray-100 pb-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
-                  </div>
-                  <span className="text-sm font-bold text-[#1A1C1E]">Excelente qualidade!</span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">Produto superou minhas expectativas. O acabamento é impecável e chegou muito rápido, bem embalado. Recomendo muito!</p>
-                <span className="text-xs text-gray-400">João P. - Comprador verificado</span>
-              </div>
-              
-              <div className="border-b border-gray-100 pb-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => <Star key={i} className={`w-3.5 h-3.5 ${i < 4 ? 'fill-current' : 'text-gray-300'}`} />)}
-                  </div>
-                  <span className="text-sm font-bold text-[#1A1C1E]">Muito bom, veste bem</span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">Gostei bastante do caimento. Só a cor que é um pouquinho mais escura que na foto, mas mesmo assim é maravilhoso.</p>
-                <span className="text-xs text-gray-400">Mariana C. - Comprador verificado</span>
-              </div>
-            </div>
+            {/* Avaliações reais (Judge.me) */}
+            <h3 className="font-bold text-[#1A1C1E] uppercase tracking-wide mb-5 border-b border-gray-200 pb-3">Avaliações de Clientes</h3>
+            <div className='jdgm-widget jdgm-review-widget' data-id={product.id.split('/').pop()}></div>
           </div>
         </div>
       </div>

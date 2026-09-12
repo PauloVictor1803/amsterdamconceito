@@ -95,10 +95,18 @@ export default function Hero() {
             </div>
             
             <button 
-              onClick={handleScrollToProducts}
-              className="inline-block bg-white text-[#1A1C1E] px-10 py-4 text-sm font-bold uppercase tracking-wide hover:bg-[#C49A6C] hover:text-white hover:scale-105 transition-all duration-300 shadow-lg rounded-sm mx-auto md:mx-0"
+              onClick={() => {
+                const element = document.getElementById('produtos');
+                if (element) {
+                  const headerOffset = 100;
+                  const elementPosition = element.getBoundingClientRect().top;
+                  const offsetPosition = elementPosition + window.scrollY - headerOffset;
+                  window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+              }}
+              className="bg-[#C49A6C] text-[#1A1C1E] px-8 py-4 text-sm font-bold uppercase tracking-wide hover:bg-[#b58b5d] hover:scale-105 transition-all shadow-lg rounded-sm"
             >
-              Ver Produtos
+              Ver Produtos &gt;
             </button>
           </motion.div>
         </div>

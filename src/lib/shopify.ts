@@ -67,12 +67,13 @@ function mapShopifyProduct(node: any): Product {
     hoverImage: allImages[1],
     images: allImages,
     discount: discount > 0 ? discount : undefined,
-    rating: 5,
-    reviews: Math.floor(Math.random() * 50) + 10,
+    rating: 0,
+    reviews: 0,
     installments: 10,
     isFull: true,
     description: node.descriptionHtml || node.description || '',
     availableForSale: variantNode?.availableForSale !== false,
+    totalInventory: node.totalInventory,
     quantityAvailable: variantNode?.quantityAvailable,
     options,
     variants,
@@ -81,11 +82,12 @@ function mapShopifyProduct(node: any): Product {
   };
 }
 
-export async function getShopifyProducts(): Promise<Product[]> {
+export async function getShopifyProducts(searchQuery?: string): Promise<Product[]> {
   try {
+    const queryArgs = searchQuery ? `first: 50, query: "${searchQuery}*"` : `first: 50`;
     const query = `
       {
-        products(first: 50) {
+        products(${queryArgs}) {
           edges {
             node {
               id
@@ -94,6 +96,7 @@ export async function getShopifyProducts(): Promise<Product[]> {
               vendor
               productType
               tags
+              totalInventory
               options {
                 name
                 values
@@ -106,6 +109,7 @@ export async function getShopifyProducts(): Promise<Product[]> {
                     price { amount }
                     compareAtPrice { amount }
                     availableForSale
+                    quantityAvailable
                     selectedOptions {
                       name
                       value
@@ -130,7 +134,27 @@ export async function getShopifyProducts(): Promise<Product[]> {
       // Priorizar os produtos reais da Shopify no topo, evitando duplicatas com o catálogo local
       const shopifyHandles = new Set(shopifyItems.map((p: Product) => p.handle));
       const remainingLocal = localProducts.filter(p => !shopifyHandles.has(p.handle || p.id));
-      return [...shopifyItems, ...remainingLocal];
+      const combined = [...shopifyItems, ...remainingLocal];
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return combined.filter(p => 
+          p.name.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q) ||
+          p.tags?.some(t => t.toLowerCase().includes(q))
+        );
+      }
+      return combined;
+    }
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return localProducts.filter(p => 
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.category?.toLowerCase().includes(q) ||
+        p.tags?.some(t => t.toLowerCase().includes(q))
+      );
     }
     return localProducts;
   } catch (err) {
@@ -148,6 +172,9 @@ export async function getShopifyProductByHandle(handle: string): Promise<Product
           title
           handle
           vendor
+          productType
+          tags
+          totalInventory
           descriptionHtml
           options {
             name
@@ -161,6 +188,7 @@ export async function getShopifyProductByHandle(handle: string): Promise<Product
                 price { amount }
                 compareAtPrice { amount }
                 availableForSale
+                quantityAvailable
                 selectedOptions {
                   name
                   value

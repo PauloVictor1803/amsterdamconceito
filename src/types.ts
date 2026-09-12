@@ -16,6 +16,7 @@ export interface Product {
   handle?: string;
   variantId?: string;
   availableForSale?: boolean;
+  totalInventory?: number;
   quantityAvailable?: number;
   options?: { name: string; values: string[] }[];
   variants?: {

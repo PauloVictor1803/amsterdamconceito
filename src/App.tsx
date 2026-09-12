@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Header from './components/Header';
@@ -15,21 +15,7 @@ import NotFoundPage from './pages/NotFound';
 import AdminPlaceholder from './pages/AdminPlaceholder';
 import WhatsAppFloating from './components/WhatsAppFloating';
 import CookieConsent from './components/CookieConsent';
-import { useState, useEffect } from 'react';
-
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  const navType = useNavigationType();
-
-  useEffect(() => {
-    // Only scroll to top on new navigation (PUSH or REPLACE), not when going back (POP)
-    if (navType !== 'POP') {
-      window.scrollTo(0, 0);
-    }
-  }, [pathname, navType]);
-
-  return null;
-}
+import ScrollToTop from './components/ScrollToTop';
 
 export default function App() {
   return (

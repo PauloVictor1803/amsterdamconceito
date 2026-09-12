@@ -262,20 +262,20 @@ export default function Header() {
 
       {/* Navigation Categories */}
       <nav className="w-full bg-white border-b border-gray-200 hidden md:block shadow-sm relative z-40">
-        <ul className="flex justify-center items-center gap-10 py-3.5 text-sm font-bold uppercase tracking-wide text-[#1A1C1E]">
+        <ul className="flex justify-center items-center gap-6 lg:gap-10 py-3.5 text-xs lg:text-sm font-bold uppercase tracking-wide text-[#1A1C1E] flex-wrap px-4">
           <li><Link to="/" className="hover:text-[#C49A6C] transition-colors">Início</Link></li>
           <li><Link to="/categoria/feminino" className="hover:text-[#C49A6C] transition-colors">Feminino</Link></li>
           <li><Link to="/categoria/masculino" className="hover:text-[#C49A6C] transition-colors">Masculino</Link></li>
+          <li><Link to="/categoria/relogios" className="hover:text-[#C49A6C] transition-colors">Relógios</Link></li>
+          <li><Link to="/categoria/oculos" className="hover:text-[#C49A6C] transition-colors">Óculos</Link></li>
           <li><Link to="/categoria/acessorios" className="hover:text-[#C49A6C] transition-colors">Acessórios</Link></li>
-          <li><Link to="/categoria/calcados" className="hover:text-[#C49A6C] transition-colors">Calçados</Link></li>
-          <li><Link to="/categoria/esportes" className="hover:text-[#C49A6C] transition-colors">Esportes</Link></li>
-          <li><Link to="/categoria/marcas" className="hover:text-[#C49A6C] transition-colors">Marcas</Link></li>
+          <li><Link to="/categoria/bones" className="hover:text-[#C49A6C] transition-colors">Bonés</Link></li>
           <motion.li
             animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="origin-center flex items-center"
+            className="origin-center flex items-center ml-2"
           >
-            <Link to="/categoria/ofertas" className="text-red-600 hover:text-red-700 transition-colors text-base font-extrabold tracking-widest drop-shadow-sm">OFERTAS</Link>
+            <Link to="/categoria/ofertas" className="text-red-600 hover:text-red-700 transition-colors text-[13px] lg:text-base font-extrabold tracking-widest drop-shadow-sm">OFERTAS</Link>
           </motion.li>
         </ul>
       </nav>
