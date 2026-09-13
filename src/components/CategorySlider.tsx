@@ -1,53 +1,91 @@
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { EditableText } from './EditableText';
 import { useStoreConfig } from '../context/StoreConfigContext';
 
 interface CategoryItem {
+  id: string;
   name: string;
   link: string;
-  image: string;
+  defaultImage: string;
   highlight?: boolean;
 }
 
-const FALLBACK_CATEGORIES: CategoryItem[] = [
+const FIXED_CATEGORIES: CategoryItem[] = [
   {
+    id: 'ofertas',
     name: 'Ofertas',
     link: '/categoria/ofertas',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=300&q=80',
     highlight: true,
   },
   {
+    id: 'feminino',
     name: 'Feminino',
     link: '/categoria/feminino',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80',
   },
   {
+    id: 'masculino',
     name: 'Masculino',
     link: '/categoria/masculino',
-    image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=300&q=80',
   },
   {
+    id: 'relogios',
     name: 'Relógios',
     link: '/categoria/relogios',
-    image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=300&q=80',
   },
   {
+    id: 'oculos',
     name: 'Óculos',
     link: '/categoria/oculos',
-    image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&q=80',
   },
   {
+    id: 'acessorios',
     name: 'Acessórios',
     link: '/categoria/acessorios',
-    image: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=300&q=80',
   },
   {
+    id: 'bones',
     name: 'Bonés',
     link: '/categoria/bones',
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&q=80',
   },
 ];
+
+const ALT_KEYS: Record<number, { imageKeys: string[]; textKeys: string[] }> = {
+  1: {
+    imageKeys: ['categoria_1_imagem', 'imagem_1'],
+    textKeys: ['categoria_1_texto', 'categoria_1_nome'],
+  },
+  2: {
+    imageKeys: ['categoria_2_imagem', 'imagem_da_parte_2'],
+    textKeys: ['categoria_2_texto', 'categoria_2_nome', 'texto_da_parcela_2'],
+  },
+  3: {
+    imageKeys: ['categoria_3_imagem', 'imagem_da_parte_3'],
+    textKeys: ['categoria_3_texto', 'categoria_3_nome', 'texto_da_parte_3'],
+  },
+  4: {
+    imageKeys: ['categoria_4_imagem', 'imagem_da_pagina4'],
+    textKeys: ['categoria_4_texto', 'categoria_4_nome', 'texto_da_país_4', 'texto_da_pais_4'],
+  },
+  5: {
+    imageKeys: ['categoria_5_imagem', 'imagem_5_da_pagina'],
+    textKeys: ['categoria_5_texto', 'categoria_5_nome', 'texto_5_da_pasta'],
+  },
+  6: {
+    imageKeys: ['categoria_6_imagem', 'imagem_6'],
+    textKeys: ['categoria_6_texto', 'categoria_6_nome', 'texto_6_da_parte'],
+  },
+  7: {
+    imageKeys: ['categoria_7_imagem', 'imagem_da_parte_7'],
+    textKeys: ['categoria_7_texto', 'categoria_7_nome', 'texto_da_parte_7'],
+  },
+};
 
 /**
  * Seção de categorias em formato de carrossel horizontal estilo visual stories / bubbles.
@@ -56,33 +94,53 @@ const FALLBACK_CATEGORIES: CategoryItem[] = [
 export default function CategorySlider() {
   const { config, loading } = useStoreConfig();
 
-  const dynamicCategories: CategoryItem[] = [];
+  // Mapeia as 7 categorias fixas, puxando imagem customizada do Shopify se houver
+  const displayCategories = FIXED_CATEGORIES.map((cat, index) => {
+    const num = index + 1;
+    let customImage = cat.defaultImage;
+    let customName = cat.name;
 
-  if (!loading && config) {
-    // Busca até 10 categorias dinamicamente
-    for (let i = 1; i <= 10; i++) {
-      const name = config[`categoria_${i}_nome`];
-      const link = config[`categoria_${i}_link`];
-      const imageObj = config[`categoria_${i}_imagem`];
+    if (!loading && config) {
+      // Aceita variações de chaves geradas pelo Shopify
+      const alt = ALT_KEYS[num];
+      const imageObj = 
+        config[`categoria_${num}_imagem`] || 
+        config[`categoria_${cat.id}_imagem`] ||
+        alt?.imageKeys.map(k => (config as any)?.[k]).find(val => typeof val === 'object' && val !== null);
 
-      if (typeof name === 'string' && typeof link === 'string' && typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj) {
-        dynamicCategories.push({
-          name: DOMPurify.sanitize(name, { ALLOWED_TAGS: [] }), // Remove todas as tags HTML do nome para evitar quebras no design
-          link: link,
-          image: (imageObj as { url: string }).url,
-          highlight: i === 1, // Por padrão, destacamos a primeira categoria (ex: Ofertas)
-        });
+      if (typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj && (imageObj as { url: string }).url) {
+        customImage = (imageObj as { url: string }).url;
+      }
+
+      // Permite alterar o nome/texto caso queira
+      let nameVal: any = config[`categoria_${num}_texto`] || config[`categoria_${num}_nome`] || config[`categoria_${cat.id}_nome`];
+      if (!nameVal && alt) {
+        for (const k of alt.textKeys) {
+          if (typeof (config as any)?.[k] === 'string' && (config as any)[k].trim()) {
+            nameVal = (config as any)[k];
+            break;
+          }
+        }
+      }
+
+      if (typeof nameVal === 'string' && nameVal.trim()) {
+        customName = DOMPurify.sanitize(nameVal, { ALLOWED_TAGS: [] });
       }
     }
-  }
 
-  const displayCategories = dynamicCategories.length > 0 ? dynamicCategories : FALLBACK_CATEGORIES;
+    return {
+      name: customName,
+      link: cat.link,
+      image: customImage,
+      highlight: cat.highlight,
+    };
+  });
 
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 lg:px-8 w-full">
       <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
         <h3 className="text-xs md:text-sm font-bold uppercase tracking-wider text-gray-700">
-          <EditableText field="titulo_barra_categorias" defaultText="Navegue por Categorias" />
+          Navegue por Categorias
         </h3>
         <span className="text-[11px] text-gray-400 font-medium">
           Deslize para o lado

@@ -38,14 +38,19 @@ Abaixo está o mapeamento completo de qual Chave (`Key`) da API corresponde a qu
 - `hero_image` ➔ Arquivo da imagem de fundo do painel.
 
 ### 🛍️ Categorias e Faixa de Preços (Meio)
-- `titulo_barra_categorias` ➔ Título acima das bolinhas de categoria.
 
-**As Categorias (Bolinhas com Imagem)**
-Para que uma categoria apareça, você precisa preencher o "kit" completo de 3 campos dela. Você pode adicionar até 10 categorias, seguindo este padrão:
-- `categoria_1_nome` ➔ O nome da categoria (Ex: "Ofertas").
-- `categoria_1_link` ➔ O link para onde ela vai (Ex: "/categoria/ofertas").
-- `categoria_1_imagem` ➔ A imagem da bolinha (Tipo Arquivo).
-*(Para a categoria 2, use `categoria_2_nome`, `categoria_2_link`, `categoria_2_imagem` e assim por diante).*
+**Imagens das 7 Categorias (Opcional)**
+As 7 categorias e seus links já vêm prontos e vinculados automaticamente às tags dos produtos no Shopify. Se a loja quiser trocar a foto de qualquer uma das bolinhas, basta adicionar o campo do tipo **Arquivo** correspondente:
+
+- `categoria_1_imagem` (ou `categoria_ofertas_imagem`) ➔ Imagem para **Ofertas**
+- `categoria_2_imagem` (ou `categoria_feminino_imagem`) ➔ Imagem para **Feminino**
+- `categoria_3_imagem` (ou `categoria_masculino_imagem`) ➔ Imagem para **Masculino**
+- `categoria_4_imagem` (ou `categoria_relogios_imagem`) ➔ Imagem para **Relógios**
+- `categoria_5_imagem` (ou `categoria_oculos_imagem`) ➔ Imagem para **Óculos**
+- `categoria_6_imagem` (ou `categoria_acessorios_imagem`) ➔ Imagem para **Acessórios**
+- `categoria_7_imagem` (ou `categoria_bones_imagem`) ➔ Imagem para **Bonés**
+
+*(Se o campo estiver vazio, o site usa a imagem padrão linda que já está nele. Não precisa configurar links nem nomes!)*
 
 **Faixa de Preços e Banner**
 - `botao_preco_1` ➔ Primeiro botão da faixa de ofertas (Ex: "A PARTIR DE R$ 19,99").
@@ -65,6 +70,7 @@ Para que uma categoria apareça, você precisa preencher o "kit" completo de 3 c
 - `rodape_loja_1_nome` ➔ Nome da unidade 1 no rodapé e no popup do WhatsApp.
 - `rodape_loja_1_endereco` ➔ Endereço físico completo da loja 1.
 - `rodape_loja_1_telefone` ➔ Telefone exibido no rodapé para a loja 1.
+- `rodape_loja_1_link_mapa` ➔ (Opcional) Link do Google Maps da loja 1 (ex: URL completa para a localização da loja).
 - `whatsapp_loja_1_nome` ➔ Nome do atendente no popup flutuante do Wpp.
 - `whatsapp_loja_1_numero` ➔ Número formatado mostrado no popup flutuante.
 
@@ -72,5 +78,6 @@ Para que uma categoria apareça, você precisa preencher o "kit" completo de 3 c
 - `rodape_loja_2_nome` ➔ Nome da unidade 2 no rodapé e no popup do WhatsApp.
 - `rodape_loja_2_endereco` ➔ Endereço físico completo da loja 2.
 - `rodape_loja_2_telefone` ➔ Telefone exibido no rodapé para a loja 2.
+- `rodape_loja_2_link_mapa` ➔ (Opcional) Link do Google Maps da loja 2 (ex: URL completa para a localização da loja).
 - `whatsapp_loja_2_nome` ➔ Nome do atendente no popup flutuante do Wpp.
 - `whatsapp_loja_2_numero` ➔ Número formatado mostrado no popup flutuante.

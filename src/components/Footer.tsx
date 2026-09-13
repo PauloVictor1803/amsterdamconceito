@@ -1,9 +1,15 @@
 import { MapPin, Phone, Instagram, Facebook, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EditableText } from './EditableText';
+import { useStoreConfig } from '../context/StoreConfigContext';
 import { motion } from 'motion/react';
 
 export default function Footer() {
+  const { config } = useStoreConfig();
+
+  const mapLink1 = config?.rodape_loja_1_link_mapa as string || "https://www.google.com/maps/search/?api=1&query=Rua+Engenheiro+Veloso,+781+B+-+Bairro+Delfino+Magalhães,+Montes+Claros+-+MG";
+  const mapLink2 = config?.rodape_loja_2_link_mapa as string || "https://www.google.com/maps/search/?api=1&query=Rua+Deolinda+Ribeiro,+435+F+-+Bairro+Santos+Reis,+Montes+Claros+-+MG";
+
   return (
     <footer className="w-full bg-[#1A1C1E] text-white pt-16 pb-8 px-4 lg:px-8 border-t border-[#2A2D34] mt-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
@@ -48,7 +54,7 @@ export default function Footer() {
           <h3 className="font-bold text-[#C49A6C] uppercase tracking-wider mb-2 border-b border-[#2A2D34] pb-2"><EditableText field="rodape_loja_1_nome" defaultText="Delfino Magalhães" /></h3>
           <div className="flex items-start gap-3 text-sm text-gray-400">
             <MapPin className="w-5 h-5 text-[#C49A6C] shrink-0 mt-0.5" />
-            <a href="https://www.google.com/maps/search/?api=1&query=Rua+Engenheiro+Veloso,+781+B+-+Bairro+Delfino+Magalhães,+Montes+Claros+-+MG" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+            <a href={mapLink1} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               <EditableText field="rodape_loja_1_endereco" defaultText="Rua Engenheiro Veloso, 781 B<br/>Bairro Delfino Magalhães<br/>Montes Claros - MG" />
             </a>
           </div>
@@ -63,7 +69,7 @@ export default function Footer() {
           <h3 className="font-bold text-[#C49A6C] uppercase tracking-wider mb-2 border-b border-[#2A2D34] pb-2"><EditableText field="rodape_loja_2_nome" defaultText="Santos Reis" /></h3>
           <div className="flex items-start gap-3 text-sm text-gray-400">
             <MapPin className="w-5 h-5 text-[#C49A6C] shrink-0 mt-0.5" />
-            <a href="https://www.google.com/maps/search/?api=1&query=Rua+Deolinda+Ribeiro,+435+F+-+Bairro+Santos+Reis,+Montes+Claros+-+MG" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+            <a href={mapLink2} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               <EditableText field="rodape_loja_2_endereco" defaultText="Rua Deolinda Ribeiro, 435 F<br/>Bairro Santos Reis<br/>Montes Claros - MG" />
             </a>
           </div>

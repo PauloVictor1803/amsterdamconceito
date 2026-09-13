@@ -7,6 +7,8 @@ export default function Hero() {
   
   const heroImage = 
     (typeof config?.hero_image === 'object' ? config.hero_image?.url : undefined) || 
+    (typeof (config as any)?.['imagem_do_heroi'] === 'object' ? (config as any)['imagem_do_heroi']?.url : undefined) ||
+    (typeof (config as any)?.['imagem_do_herói'] === 'object' ? (config as any)['imagem_do_herói']?.url : undefined) ||
     'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80';
 
   return (
