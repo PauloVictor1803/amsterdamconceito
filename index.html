@@ -7,6 +7,8 @@
     <link rel="shortcut icon" href="/favicon.png?v=3" />
     <link rel="apple-touch-icon" href="/favicon.png?v=3" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,10 +57,18 @@
     <!-- Judge.me integration -->
     <script type="text/javascript" src="https://cdn.judge.me/widget_preloader.js"></script>
     <script>
-      jdgm = window.jdgm || {};
-      jdgm.SHOP_DOMAIN = '%VITE_SHOPIFY_STORE_DOMAIN%';
-      jdgm.PLATFORM = 'shopify';
-      jdgm.PUBLIC_TOKEN = '%VITE_JUDGEME_PUBLIC_TOKEN%';
+      (function() {
+        window.jdgm = window.jdgm || {};
+        var shopDomain = '%VITE_SHOPIFY_STORE_DOMAIN%';
+        if (shopDomain && !shopDomain.startsWith('%')) {
+          window.jdgm.SHOP_DOMAIN = shopDomain;
+        }
+        window.jdgm.PLATFORM = 'shopify';
+        var judgeToken = '%VITE_JUDGEME_PUBLIC_TOKEN%';
+        if (judgeToken && !judgeToken.startsWith('%')) {
+          window.jdgm.PUBLIC_TOKEN = judgeToken;
+        }
+      })();
     </script>
   </head>
   <body>

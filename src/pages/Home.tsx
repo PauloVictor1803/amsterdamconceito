@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import Hero from '../components/Hero';
@@ -6,29 +6,13 @@ import ProductCard from '../components/ProductCard';
 import ProductSlider from '../components/ProductSlider';
 import CategorySlider from '../components/CategorySlider';
 import Pagination from '../components/Pagination';
-import { getShopifyProducts } from '../lib/shopify';
-import { Product } from '../types';
+import { useShopifyProducts } from '../hooks/useShopifyProducts';
 import { EditableText } from '../components/EditableText';
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useShopifyProducts();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
-
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        const shopifyProducts = await getShopifyProducts();
-        setProducts(shopifyProducts);
-      } catch (error) {
-        console.error("Failed to load products", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadProducts();
-  }, []);
 
   // Produtos mais vistos / destaques iniciais
   const mostViewedProducts = useMemo(() => {

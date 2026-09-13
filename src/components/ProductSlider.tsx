@@ -34,19 +34,28 @@ export default function ProductSlider({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Monitorar a posição do scroll para atualizar as setas e a barra de progresso
-  const handleScroll = () => {
-    if (!sliderRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-    
-    // Using a small tolerance (1px) for float pixel values
-    setCanScrollLeft(scrollLeft > 1);
-    setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth - 1);
+  const rafIdRef = useRef<number | null>(null);
 
-    const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll > 0) {
-      setScrollProgress((scrollLeft / maxScroll) * 100);
-    }
+  // Monitorar a posição do scroll com requestAnimationFrame para fluidez de 60fps sem engasgos
+  const handleScroll = () => {
+    if (rafIdRef.current) return;
+
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      if (!sliderRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+      
+      const newCanScrollLeft = scrollLeft > 1;
+      const newCanScrollRight = Math.ceil(scrollLeft + clientWidth) < scrollWidth - 1;
+
+      setCanScrollLeft(prev => prev !== newCanScrollLeft ? newCanScrollLeft : prev);
+      setCanScrollRight(prev => prev !== newCanScrollRight ? newCanScrollRight : prev);
+
+      const maxScroll = scrollWidth - clientWidth;
+      if (maxScroll > 0) {
+        setScrollProgress(Math.round((scrollLeft / maxScroll) * 100));
+      }
+    });
   };
 
   useEffect(() => {
@@ -54,13 +63,23 @@ export default function ProductSlider({
     const current = sliderRef.current;
     if (current) {
       current.addEventListener('scroll', handleScroll, { passive: true });
-      window.addEventListener('resize', handleScroll);
+      window.addEventListener('resize', handleScroll, { passive: true });
     }
     return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       if (current) current.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
   }, [products]);
+
+  // Efeito para pausar autoplay se a aba estiver em background
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPaused(document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // Efeito para AutoPlay
   useEffect(() => {

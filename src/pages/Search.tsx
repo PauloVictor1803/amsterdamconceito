@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { getShopifyProducts } from '../lib/shopify';
+import { useShopifyProducts } from '../hooks/useShopifyProducts';
 import type { Product } from '../types';
 
 export default function Search() {
@@ -9,18 +9,7 @@ export default function Search() {
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get('q') || '';
   
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadProducts() {
-      setLoading(true);
-      const data = await getShopifyProducts();
-      setProducts(data);
-      setLoading(false);
-    }
-    loadProducts();
-  }, []);
+  const { products, loading } = useShopifyProducts();
 
   const filteredProducts = useMemo(() => {
     if (!query) return [];

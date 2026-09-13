@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { useStoreConfig } from '../context/StoreConfigContext';
@@ -94,47 +95,49 @@ const ALT_KEYS: Record<number, { imageKeys: string[]; textKeys: string[] }> = {
 export default function CategorySlider() {
   const { config, loading } = useStoreConfig();
 
-  // Mapeia as 7 categorias fixas, puxando imagem customizada do Shopify se houver
-  const displayCategories = FIXED_CATEGORIES.map((cat, index) => {
-    const num = index + 1;
-    let customImage = cat.defaultImage;
-    let customName = cat.name;
+  // Mapeia as 7 categorias fixas, puxando imagem customizada do Shopify se houver (memoizado para evitar recálculo)
+  const displayCategories = useMemo(() => {
+    return FIXED_CATEGORIES.map((cat, index) => {
+      const num = index + 1;
+      let customImage = cat.defaultImage;
+      let customName = cat.name;
 
-    if (!loading && config) {
-      // Aceita variações de chaves geradas pelo Shopify
-      const alt = ALT_KEYS[num];
-      const imageObj = 
-        config[`categoria_${num}_imagem`] || 
-        config[`categoria_${cat.id}_imagem`] ||
-        alt?.imageKeys.map(k => (config as any)?.[k]).find(val => typeof val === 'object' && val !== null);
+      if (!loading && config) {
+        // Aceita variações de chaves geradas pelo Shopify
+        const alt = ALT_KEYS[num];
+        const imageObj = 
+          config[`categoria_${num}_imagem`] || 
+          config[`categoria_${cat.id}_imagem`] ||
+          alt?.imageKeys.map(k => (config as any)?.[k]).find(val => typeof val === 'object' && val !== null);
 
-      if (typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj && (imageObj as { url: string }).url) {
-        customImage = (imageObj as { url: string }).url;
-      }
+        if (typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj && (imageObj as { url: string }).url) {
+          customImage = (imageObj as { url: string }).url;
+        }
 
-      // Permite alterar o nome/texto caso queira
-      let nameVal: any = config[`categoria_${num}_texto`] || config[`categoria_${num}_nome`] || config[`categoria_${cat.id}_nome`];
-      if (!nameVal && alt) {
-        for (const k of alt.textKeys) {
-          if (typeof (config as any)?.[k] === 'string' && (config as any)[k].trim()) {
-            nameVal = (config as any)[k];
-            break;
+        // Permite alterar o nome/texto caso queira
+        let nameVal: any = config[`categoria_${num}_texto`] || config[`categoria_${num}_nome`] || config[`categoria_${cat.id}_nome`];
+        if (!nameVal && alt) {
+          for (const k of alt.textKeys) {
+            if (typeof (config as any)?.[k] === 'string' && (config as any)[k].trim()) {
+              nameVal = (config as any)[k];
+              break;
+            }
           }
+        }
+
+        if (typeof nameVal === 'string' && nameVal.trim()) {
+          customName = DOMPurify.sanitize(nameVal, { ALLOWED_TAGS: [] });
         }
       }
 
-      if (typeof nameVal === 'string' && nameVal.trim()) {
-        customName = DOMPurify.sanitize(nameVal, { ALLOWED_TAGS: [] });
-      }
-    }
-
-    return {
-      name: customName,
-      link: cat.link,
-      image: customImage,
-      highlight: cat.highlight,
-    };
-  });
+      return {
+        name: customName,
+        link: cat.link,
+        image: customImage,
+        highlight: cat.highlight,
+      };
+    });
+  }, [config, loading]);
 
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 lg:px-8 w-full">
@@ -168,6 +171,8 @@ export default function CategorySlider() {
                 <img
                   src={cat.image}
                   alt={cat.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />

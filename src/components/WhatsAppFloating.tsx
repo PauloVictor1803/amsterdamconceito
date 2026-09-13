@@ -8,18 +8,21 @@ export default function WhatsAppFloating() {
   const [isOpen, setIsOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Monitora o scroll da página para mostrar a seta
+  // Monitora o scroll da página para mostrar a seta com listener passivo e atualização sob demanda
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      // Exibe a seta se rolar mais de 300px
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const shouldShow = window.scrollY > 300;
+          setShowScrollTop(prev => (prev !== shouldShow ? shouldShow : prev));
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

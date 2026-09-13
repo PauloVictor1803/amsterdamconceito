@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Product } from '../types';
-import { Heart, Zap, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
@@ -13,7 +13,11 @@ interface ProductCardProps {
 
 const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop';
 
-export default function ProductCard({ product }: ProductCardProps) {
+function formatCurrency(val: number): string {
+  return val.toFixed(2).replace('.', ',');
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { addToCart, items } = useCart();
   const navigate = useNavigate();
@@ -101,15 +105,20 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const installments = product.installments || 10;
+  const installmentValue = formatCurrency(product.currentPrice / installments);
+
   return (
     <div 
       className="group flex flex-col bg-white rounded-sm overflow-hidden relative border border-gray-200 hover:border-[#C49A6C]/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full"
     >
       {/* Container da Imagem com Link */}
-      <Link to={`/produto/${product.handle}`} className="relative aspect-[3/4] bg-gray-100 overflow-hidden block">
+      <Link to={`/produto/${product.handle || product.id}`} className="relative aspect-[3/4] bg-gray-100 overflow-hidden block">
         <img 
           src={imgSrc} 
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           onError={() => setImgSrc(DEFAULT_FALLBACK_IMAGE)}
           className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-90"
         />
@@ -117,6 +126,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img 
             src={product.hoverImage} 
             alt={`${product.name} hover`}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           />
         )}
@@ -151,7 +162,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             rotate: [0, 15, -15, 0]
           } : { 
             scale: 1, 
-            y: 0,
+            y: 0, 
             rotate: 0 
           }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -163,7 +174,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </button>
 
       {/* Content Container */}
-      <Link to={`/produto/${product.handle}`} className="p-3 sm:p-4 flex flex-col flex-1 cursor-pointer">
+      <Link to={`/produto/${product.handle || product.id}`} className="p-3 sm:p-4 flex flex-col flex-1 cursor-pointer">
         <span className="text-[10px] sm:text-[11px] font-bold text-[#C49A6C] uppercase tracking-wider mb-1">
           {product.brand}
         </span>
@@ -180,14 +191,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex flex-col mt-auto pb-3">
           {product.discount && (
             <span className="text-[11px] text-gray-400 line-through">
-              R$ {product.originalPrice.toFixed(2).replace('.', ',')}
+              R$ {formatCurrency(product.originalPrice)}
             </span>
           )}
           <span className="text-base sm:text-lg font-bold text-[#1A1C1E]">
-            R$ {product.currentPrice.toFixed(2).replace('.', ',')}
+            R$ {formatCurrency(product.currentPrice)}
           </span>
           <span className="text-[10px] sm:text-xs text-gray-500">
-            ou {product.installments || 10}x de R$ {((product.currentPrice) / (product.installments || 10)).toFixed(2).replace('.', ',')} sem juros
+            ou {installments}x de R$ {installmentValue} sem juros
           </span>
         </div>
 
@@ -233,4 +244,6 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     </div>
   );
-}
+};
+
+export default memo(ProductCard);

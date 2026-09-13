@@ -1,28 +1,15 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
-import { getShopifyProducts } from '../lib/shopify';
+import { useShopifyProducts } from '../hooks/useShopifyProducts';
 import type { Product } from '../types';
 
 export default function Category() {
   const { id } = useParams<{ id: string }>();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useShopifyProducts(id);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
-
-  useEffect(() => {
-    async function loadProducts() {
-      setLoading(true);
-      // Fetch category specific products or all if no id
-      const data = await getShopifyProducts(id);
-      setProducts(data);
-      setLoading(false);
-    }
-    loadProducts();
-    setCurrentPage(1);
-  }, [id]);
 
   const filteredProducts = useMemo(() => {
     if (!id) return products;

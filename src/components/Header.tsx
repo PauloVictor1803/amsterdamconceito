@@ -1,91 +1,29 @@
-import { Heart, Search, ShoppingBag, Menu, X, ChevronRight } from 'lucide-react';
+import { Heart, Search, ShoppingBag, Menu, X } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getShopifyProducts } from '../lib/shopify';
+import { useShopifyProducts } from '../hooks/useShopifyProducts';
 import type { Product } from '../types';
 import SearchDropdown from './SearchDropdown';
+import HeaderMarquee from './HeaderMarquee';
+import MobileDrawer from './MobileDrawer';
 
 export default function Header() {
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
   const [searchQuery, setSearchQuery] = useState('');
-  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
-  const [isCatalogLoading, setIsCatalogLoading] = useState(false);
+  const { products: catalogProducts, loading: isCatalogLoading } = useShopifyProducts();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
   const [isDesktopSearchFocused, setIsDesktopSearchFocused] = useState(false);
   const [logoKey, setLogoKey] = useState(0); // Forçando o React a recriar o SVG e rodar a animação
-  const [marqueeTexts, setMarqueeTexts] = useState([
-    { b: 'Troca grátis', t: 'em até 30 dias' },
-    { b: 'Frete grátis', t: 'para compras acima de R$199,99*' },
-    { b: 'Parcele em até 10x', t: 'sem juros' }
-  ]);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
   const desktopSearchRef = useRef<HTMLDivElement>(null);
-
-  // Escuta configurações do localStorage para o Marquee
-  useEffect(() => {
-    const updateFromStorage = () => {
-      const saved = localStorage.getItem('site_settings');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.marqueeText1 || parsed.marqueeText2 || parsed.marqueeText3) {
-            
-            // Função auxiliar para quebrar "Texto negrito" e "Texto normal"
-            const parseText = (fullText: string) => {
-              if (!fullText) return { b: '', t: '' };
-              const words = fullText.split(' ');
-              if (words.length <= 2) return { b: fullText, t: '' };
-              return { 
-                b: words.slice(0, 2).join(' '), 
-                t: words.slice(2).join(' ') 
-              };
-            };
-
-            setMarqueeTexts([
-              parseText(parsed.marqueeText1 || 'Troca grátis em até 30 dias'),
-              parseText(parsed.marqueeText2 || 'Frete grátis para compras acima de R$199,99*'),
-              parseText(parsed.marqueeText3 || 'Parcele em até 10x sem juros')
-            ]);
-          }
-        } catch (e) {
-          console.error("Erro ao ler as configurações:", e);
-        }
-      }
-    };
-
-    updateFromStorage();
-    window.addEventListener('storage', updateFromStorage);
-    return () => window.removeEventListener('storage', updateFromStorage);
-  }, []);
   const navigate = useNavigate();
   const location = useLocation();
   const isUtilityPage = location.pathname === '/carrinho' || location.pathname === '/favoritos';
-
-  // Carregar produtos reais da Shopify/Catálogo para alimentar a busca e recomendações em tempo real
-  useEffect(() => {
-    let isMounted = true;
-    setIsCatalogLoading(true);
-    getShopifyProducts()
-      .then((prods) => {
-        if (isMounted) {
-          setCatalogProducts(prods);
-          setIsCatalogLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Erro ao obter produtos para o cabeçalho:", err);
-        if (isMounted) setIsCatalogLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   // Bloquear scroll quando o menu mobile estiver aberto
   useEffect(() => {
@@ -149,7 +87,8 @@ export default function Header() {
         <div className="flex items-center gap-4 flex-shrink-0">
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden text-white hover:text-[#C49A6C] transition-colors"
+            aria-label="Abrir menu de navegação"
+            className="md:hidden text-white hover:text-[#C49A6C] transition-colors cursor-pointer"
           >
             <Menu className="w-7 h-7" />
           </button>
@@ -201,7 +140,7 @@ export default function Header() {
               placeholder="O que você procura hoje?"
               className="w-full bg-white text-black rounded-sm py-3 pl-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49A6C]"
             />
-            <button type="submit" className="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-[#C49A6C] transition-colors">
+            <button type="submit" aria-label="Pesquisar" className="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-[#C49A6C] transition-colors cursor-pointer">
               <Search className="w-5 h-5" />
             </button>
           </form>
@@ -281,22 +220,9 @@ export default function Header() {
       </nav>
 
       {/* Trust Badges Banner (Dark Charcoal) - Marquee */}
-      <div className="w-full bg-[#111214] text-gray-300 text-xs md:text-sm font-medium py-2.5 overflow-hidden whitespace-nowrap relative z-30">
-        <div className="flex w-max animate-marquee">
-          {/* Duplicar os itens para criar o efeito infinito suave. 2 blocos idênticos rolando a -50% */}
-          {[...Array(2)].map((_, idx) => (
-            <div key={idx} className="flex shrink-0 gap-8 lg:gap-16 px-4 lg:px-8">
-              {marqueeTexts.map((item, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="font-bold text-white">{item.b}</span> {item.t}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <HeaderMarquee />
 
-      {/* Search Bar abaixo do Carrossel (Especialmente no Mobile) */}
+      {/* Search Bar abaixo do Carrossel (Mobile) */}
       <div className="w-full bg-[#1A1C1E] px-4 py-3 border-b border-[#2A2D34] md:hidden relative z-40">
         <div ref={mobileSearchRef} className="relative w-full">
           <form onSubmit={handleSearch} className="relative flex items-center">
@@ -344,116 +270,13 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Drawer Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-              className="fixed inset-y-0 left-0 w-[75%] max-w-[280px] bg-white z-[70] shadow-2xl flex flex-col md:hidden"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-[#2A2D34] bg-[#1A1C1E] text-white">
-                <div className="flex flex-col items-start pt-1">
-                  <div className="flex items-center gap-1 text-lg font-bold tracking-widest text-white mb-0.5">
-                    <span className="font-light text-gray-200">AMT</span>
-                    <svg viewBox="0 0 15 36" className="h-5 w-auto text-[#C49A6C] fill-current mx-1 drop-shadow-sm overflow-visible">
-                      <motion.rect 
-                        x="0" y="0" width="3.5" height="24" rx="1" 
-                        animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
-                        transition={{ duration: 1.5, delay: 0.5, ease: "easeInOut" }} 
-                      />
-                      <motion.rect 
-                        x="5.5" y="6" width="3.5" height="24" rx="1" 
-                        animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
-                        transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }} 
-                      />
-                      <motion.rect 
-                        x="11" y="12" width="3.5" height="24" rx="1" 
-                        animate={{ fill: ['#C49A6C', '#FFFFFF', '#C49A6C'] }} 
-                        transition={{ duration: 1.5, delay: 0.9, ease: "easeInOut" }} 
-                      />
-                    </svg>
-                    <span>CONCEITO</span>
-                  </div>
-                  <span className="text-[6px] tracking-[0.25em] text-[#C49A6C] font-semibold uppercase ml-0.5">
-                    Amsterdam Conceito
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 hover:bg-[#2A2D34] rounded-full transition-colors text-gray-300 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto py-6">
-                <nav className="flex flex-col px-4 space-y-1">
-                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Início</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/feminino" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Feminino</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/masculino" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Masculino</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/acessorios" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Acessórios</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/relogios" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Relógios</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/oculos" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Óculos</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/bones" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-gray-50 transition-colors group">
-                    <span className="text-sm font-semibold text-[#1A1C1E] uppercase tracking-wider group-hover:text-[#C49A6C] transition-colors">Bonés</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                  <Link to="/categoria/ofertas" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3.5 rounded-md hover:bg-[#C49A6C]/5 transition-colors group">
-                    <span className="text-sm font-bold text-[#C49A6C] uppercase tracking-wider">Ofertas</span>
-                    <ChevronRight className="w-4 h-4 text-[#C49A6C]/50 group-hover:text-[#C49A6C] transition-colors" />
-                  </Link>
-                </nav>
-              </div>
-
-              <div className="p-6 bg-white border-t border-gray-100 flex flex-col gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
-                <Link to="/favoritos" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-[#C49A6C] p-3 rounded-md bg-gray-50 hover:bg-[#f9f5f0] transition-colors">
-                  <Heart className="w-5 h-5 text-gray-400" />
-                  <span>Lista de Desejos</span>
-                  {wishlistCount > 0 && (
-                    <span className="ml-auto bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-[10px] font-bold">{wishlistCount}</span>
-                  )}
-                </Link>
-                <Link to="/carrinho" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-[#C49A6C] p-3 rounded-md bg-gray-50 hover:bg-[#f9f5f0] transition-colors">
-                  <ShoppingBag className="w-5 h-5 text-gray-400" />
-                  <span>Minha Sacola</span>
-                  {cartCount > 0 && (
-                    <span className="ml-auto bg-[#1A1C1E] text-white py-0.5 px-2 rounded-full text-[10px] font-bold">{cartCount}</span>
-                  )}
-                </Link>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Mobile Drawer Menu */}
+      <MobileDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        wishlistCount={wishlistCount}
+        cartCount={cartCount}
+      />
     </header>
   );
 }

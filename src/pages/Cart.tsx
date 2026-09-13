@@ -9,11 +9,13 @@ export default function CartPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
+
   const handleCheckout = async () => {
     if (items.length === 0) return;
     setLoading(true);
+    setErrorNotice(null);
     try {
-      // Check if credentials exist (we can infer this if the first product has a fake local ID, or if the API returns null)
       const url = await createShopifyCheckout(
         items.map(i => ({ variantId: i.id, quantity: i.quantity }))
       );
@@ -21,13 +23,12 @@ export default function CartPage() {
       if (url) {
         window.location.href = url; // Redirect to official Shopify Checkout
       } else {
-        // Exibir mensagem mais clara sobre a configuração
-        alert("O Checkout Shopify não pôde ser gerado.\n\nVerifique se as variáveis VITE_SHOPIFY_STORE_DOMAIN e VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN estão configuradas corretamente nas configurações (Settings) do seu ambiente, e se os produtos na sacola são produtos reais puxados da sua loja Shopify (com IDs válidos).");
+        setErrorNotice("O Checkout Shopify direto requer credenciais ativas da loja (VITE_SHOPIFY_STORE_DOMAIN e VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN) e produtos com IDs da Shopify Storefront API. Os itens permanecem salvos em sua sacola.");
         setLoading(false);
       }
     } catch (err) {
       console.error(err);
-      alert("Ocorreu um erro de conexão com a Shopify.");
+      setErrorNotice("Não foi possível conectar ao Checkout da Shopify no momento. Por favor, tente novamente em instantes.");
       setLoading(false);
     }
   };
@@ -160,10 +161,16 @@ export default function CartPage() {
               </div>
             </div>
 
+            {errorNotice && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-sm leading-relaxed">
+                {errorNotice}
+              </div>
+            )}
+
             <button 
               onClick={handleCheckout}
               disabled={loading}
-              className="w-full bg-[#1A1C1E] text-[#C49A6C] hover:bg-[#2A2D34] transition-colors py-4 font-bold uppercase tracking-wide shadow-lg flex items-center justify-center gap-2 disabled:opacity-70"
+              className="w-full bg-[#1A1C1E] text-[#C49A6C] hover:bg-[#2A2D34] transition-colors py-4 font-bold uppercase tracking-wide shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {loading ? 'Redirecionando...' : 'Finalizar Compra'}
               {!loading && <ArrowRight className="w-4 h-4" />}

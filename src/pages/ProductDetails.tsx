@@ -1,46 +1,47 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getShopifyProductByHandle, createShopifyCheckout } from '../lib/shopify';
-import { Product } from '../types';
+import DOMPurify from 'dompurify';
+import { createShopifyCheckout } from '../lib/shopify';
+import { useShopifyProduct } from '../hooks/useShopifyProducts';
 import { useCart } from '../context/CartContext';
-import { ShieldCheck, Truck, ArrowLeft, Minus, Plus, Star } from 'lucide-react';
+import { ShieldCheck, Truck, ArrowLeft, Minus, Plus, Star, AlertCircle } from 'lucide-react';
 
 export default function ProductDetails() {
   const { handle } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { product, loading } = useShopifyProduct(handle);
   const [adding, setAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState<string>('');
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (handle) {
-      window.scrollTo(0, 0);
-      getShopifyProductByHandle(handle).then(p => {
-        setProduct(p);
-        if (p) {
-          setActiveImage(p.image);
-          if (p.variants && p.variants.length > 0) {
-            const initialOptions: Record<string, string> = {};
-            p.variants[0].selectedOptions.forEach(opt => {
-              initialOptions[opt.name] = opt.value;
-            });
-            setSelectedOptions(initialOptions);
-          } else if (p.options) {
-             const initialOptions: Record<string, string> = {};
-             p.options.forEach(opt => {
-               if (opt.values.length > 0) initialOptions[opt.name] = opt.values[0];
-             });
-             setSelectedOptions(initialOptions);
-          }
-        }
-        setLoading(false);
-      });
-    }
+    window.scrollTo(0, 0);
   }, [handle]);
+
+  useEffect(() => {
+    if (product) {
+      if (!activeImage) {
+        setActiveImage(product.image);
+      }
+      if (Object.keys(selectedOptions).length === 0) {
+        if (product.variants && product.variants.length > 0) {
+          const initialOptions: Record<string, string> = {};
+          product.variants[0].selectedOptions.forEach(opt => {
+            initialOptions[opt.name] = opt.value;
+          });
+          setSelectedOptions(initialOptions);
+        } else if (product.options) {
+          const initialOptions: Record<string, string> = {};
+          product.options.forEach(opt => {
+            if (opt.values.length > 0) initialOptions[opt.name] = opt.values[0];
+          });
+          setSelectedOptions(initialOptions);
+        }
+      }
+    }
+  }, [product]);
 
   if (loading) {
     return (
@@ -98,11 +99,33 @@ export default function ProductDetails() {
       if (url) {
         window.location.href = url;
       } else {
-        alert("Ocorreu um erro ao gerar o checkout rápido.");
-        setAdding(false);
+        // Redirecionamento amigável para o carrinho caso o checkout direto não responda
+        addToCart({
+          id: variantIdToCart,
+          productId: product!.id,
+          title: product!.name,
+          price: currentPrice,
+          image: activeImage || product!.image,
+          quantity: quantity,
+          variantTitle: variantTitle
+        });
+        navigate('/carrinho');
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Erro ao gerar checkout rápido, enviando para o carrinho:", err);
+      if (product) {
+        addToCart({
+          id: variantIdToCart,
+          productId: product.id,
+          title: product.name,
+          price: currentPrice,
+          image: activeImage || product.image,
+          quantity: quantity,
+          variantTitle: variantTitle
+        });
+      }
+      navigate('/carrinho');
+    } finally {
       setAdding(false);
     }
   };
@@ -278,9 +301,8 @@ export default function ProductDetails() {
           <div className="w-full">
             <h3 className="font-bold text-[#1A1C1E] uppercase tracking-wide mb-5 border-b border-gray-200 pb-3">Detalhes do Produto</h3>
             <div 
-
               className="prose prose-sm text-gray-600 max-w-none mb-12"
-              dangerouslySetInnerHTML={{ __html: product.description || 'Nenhuma descrição fornecida para este produto.' }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description || 'Nenhuma descrição fornecida para este produto.') }}
             />
             
             {/* Avaliações reais (Judge.me) */}
