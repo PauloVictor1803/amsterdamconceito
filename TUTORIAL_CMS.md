@@ -15,7 +15,12 @@ Alterar os textos, preços promocionais e endereços do seu site é muito fácil
 3. Clique em **Conteúdo** (fica logo abaixo de Clientes e Produtos).
 4. Em seguida, clique em **Metaobjetos**.
 5. Na tela que abrir, no quadro de "Entradas recentes", você verá uma entrada chamada **Geral** com o tipo **Configuracoes Loja**. Clique na palavra **Geral**.
+
+![Passo 1: Acessar Metaobjetos e clicar em Geral](./cms_passo1.png)
 6. Agora você está na tela de edição! Todos os textos do seu site estão aqui. 
+
+![Passo 2: Tela de edição dos textos](./cms_passo2.png)
+
 7. **Basta apagar o texto antigo e digitar o texto novo**. 
 8. Após alterar o que deseja, clique no botão preto **Salvar** (no topo ou no rodapé da página).
 9. **Pronto!** Vá no seu site, atualize a página (F5) e veja as mudanças ao vivo.
