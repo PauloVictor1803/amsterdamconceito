@@ -102,9 +102,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <motion.div 
-      whileHover={{ y: -4 }}
-      className="group flex flex-col bg-white rounded-sm overflow-hidden relative border border-gray-200 hover:border-[#C49A6C]/50 hover:shadow-lg transition-all duration-300 h-full"
+    <div 
+      className="group flex flex-col bg-white rounded-sm overflow-hidden relative border border-gray-200 hover:border-[#C49A6C]/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full"
     >
       {/* Container da Imagem com Link */}
       <Link to={`/produto/${product.handle}`} className="relative aspect-[3/4] bg-gray-100 overflow-hidden block">
@@ -232,6 +231,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
 
-    </motion.div>
+    </div>
   );
 }

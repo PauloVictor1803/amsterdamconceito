@@ -168,7 +168,7 @@ export default function ProductSlider({
       <div className="relative -mx-4 px-4 lg:-mx-8 lg:px-8">
         <div
           ref={sliderRef}
-          className="flex gap-3 md:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 pb-4 scrollbar-none select-none touch-pan-x"
+          className="flex gap-3 md:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 pb-4 scrollbar-none select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {products.map((product) => (
