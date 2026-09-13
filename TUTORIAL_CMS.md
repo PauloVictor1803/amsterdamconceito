@@ -39,6 +39,15 @@ Abaixo está o mapeamento completo de qual Chave (`Key`) da API corresponde a qu
 
 ### 🛍️ Categorias e Faixa de Preços (Meio)
 - `titulo_barra_categorias` ➔ Título acima das bolinhas de categoria.
+
+**As Categorias (Bolinhas com Imagem)**
+Para que uma categoria apareça, você precisa preencher o "kit" completo de 3 campos dela. Você pode adicionar até 10 categorias, seguindo este padrão:
+- `categoria_1_nome` ➔ O nome da categoria (Ex: "Ofertas").
+- `categoria_1_link` ➔ O link para onde ela vai (Ex: "/categoria/ofertas").
+- `categoria_1_imagem` ➔ A imagem da bolinha (Tipo Arquivo).
+*(Para a categoria 2, use `categoria_2_nome`, `categoria_2_link`, `categoria_2_imagem` e assim por diante).*
+
+**Faixa de Preços e Banner**
 - `botao_preco_1` ➔ Primeiro botão da faixa de ofertas (Ex: "A PARTIR DE R$ 19,99").
 - `botao_preco_2` ➔ Segundo botão da faixa de ofertas.
 - `botao_preco_3` ➔ Terceiro botão da faixa de ofertas.

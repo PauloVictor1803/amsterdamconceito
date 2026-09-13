@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { EditableText } from './EditableText';
+import { useStoreConfig } from '../context/StoreConfigContext';
 
 interface CategoryItem {
   name: string;
@@ -8,7 +10,7 @@ interface CategoryItem {
   highlight?: boolean;
 }
 
-const CATEGORIES: CategoryItem[] = [
+const FALLBACK_CATEGORIES: CategoryItem[] = [
   {
     name: 'Ofertas',
     link: '/categoria/ofertas',
@@ -52,6 +54,30 @@ const CATEGORIES: CategoryItem[] = [
  * Permite deslizar para o lado com facilidade em dispositivos móveis.
  */
 export default function CategorySlider() {
+  const { config, loading } = useStoreConfig();
+
+  const dynamicCategories: CategoryItem[] = [];
+
+  if (!loading && config) {
+    // Busca até 10 categorias dinamicamente
+    for (let i = 1; i <= 10; i++) {
+      const name = config[`categoria_${i}_nome`];
+      const link = config[`categoria_${i}_link`];
+      const imageObj = config[`categoria_${i}_imagem`];
+
+      if (typeof name === 'string' && typeof link === 'string' && typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj) {
+        dynamicCategories.push({
+          name: DOMPurify.sanitize(name, { ALLOWED_TAGS: [] }), // Remove todas as tags HTML do nome para evitar quebras no design
+          link: link,
+          image: (imageObj as { url: string }).url,
+          highlight: i === 1, // Por padrão, destacamos a primeira categoria (ex: Ofertas)
+        });
+      }
+    }
+  }
+
+  const displayCategories = dynamicCategories.length > 0 ? dynamicCategories : FALLBACK_CATEGORIES;
+
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 lg:px-8 w-full">
       <div className="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
@@ -68,9 +94,9 @@ export default function CategorySlider() {
           className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none scroll-smooth touch-pan-x md:justify-center"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {CATEGORIES.map((cat) => (
+          {displayCategories.map((cat, index) => (
             <Link
-              key={cat.name}
+              key={cat.name + index}
               to={cat.link}
               className="flex flex-col items-center flex-shrink-0 group cursor-pointer"
             >
