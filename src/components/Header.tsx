@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useShopifyProducts } from '../hooks/useShopifyProducts';
 import type { Product } from '../types';
+import { useDynamicCategories } from '../hooks/useDynamicCategories';
 import SearchDropdown from './SearchDropdown';
 import HeaderMarquee from './HeaderMarquee';
 import MobileDrawer from './MobileDrawer';
@@ -15,6 +16,7 @@ export default function Header() {
   const { wishlistCount } = useWishlist();
   const [searchQuery, setSearchQuery] = useState('');
   const { products: catalogProducts, loading: isCatalogLoading } = useShopifyProducts();
+  const dynamicCategories = useDynamicCategories();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchFocused, setIsMobileSearchFocused] = useState(false);
   const [isDesktopSearchFocused, setIsDesktopSearchFocused] = useState(false);
@@ -203,19 +205,25 @@ export default function Header() {
       <nav className="w-full bg-white border-b border-gray-200 hidden md:block shadow-sm relative z-40">
         <ul className="flex justify-center items-center gap-6 lg:gap-10 py-3.5 text-xs lg:text-sm font-bold uppercase tracking-wide text-[#1A1C1E] flex-wrap px-4">
           <li><Link to="/" className="hover:text-[#C49A6C] transition-colors">Início</Link></li>
-          <li><Link to="/categoria/feminino" className="hover:text-[#C49A6C] transition-colors">Feminino</Link></li>
-          <li><Link to="/categoria/masculino" className="hover:text-[#C49A6C] transition-colors">Masculino</Link></li>
-          <li><Link to="/categoria/relogios" className="hover:text-[#C49A6C] transition-colors">Relógios</Link></li>
-          <li><Link to="/categoria/oculos" className="hover:text-[#C49A6C] transition-colors">Óculos</Link></li>
-          <li><Link to="/categoria/acessorios" className="hover:text-[#C49A6C] transition-colors">Acessórios</Link></li>
-          <li><Link to="/categoria/bones" className="hover:text-[#C49A6C] transition-colors">Bonés</Link></li>
-          <motion.li
-            animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="origin-center flex items-center ml-2"
-          >
-            <Link to="/categoria/ofertas" className="text-red-600 hover:text-red-700 transition-colors text-[13px] lg:text-base font-extrabold tracking-widest drop-shadow-sm">OFERTAS</Link>
-          </motion.li>
+          {dynamicCategories.map((cat) => (
+            <li key={cat.id}>
+              {cat.highlight ? (
+                <motion.div
+                  animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="origin-center flex items-center ml-2"
+                >
+                  <Link to={cat.link} className="text-red-600 hover:text-red-700 transition-colors text-[13px] lg:text-base font-extrabold tracking-widest drop-shadow-sm">
+                    {cat.name}
+                  </Link>
+                </motion.div>
+              ) : (
+                <Link to={cat.link} className="hover:text-[#C49A6C] transition-colors">
+                  {cat.name}
+                </Link>
+              )}
+            </li>
+          ))}
         </ul>
       </nav>
 

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import type { Product } from '../types';
+import { useDynamicCategories } from '../hooks/useDynamicCategories';
 
 interface SearchDropdownProps {
   searchQuery: string;
@@ -23,6 +24,7 @@ export default function SearchDropdown({
   onSelectTerm,
 }: SearchDropdownProps) {
   const navigate = useNavigate();
+  const dynamicCategories = useDynamicCategories();
 
   // Limpar e normalizar o termo digitado para busca sem acentos
   const cleanQuery = useMemo(() => {
@@ -59,9 +61,9 @@ export default function SearchDropdown({
       )
     ).slice(0, 4);
 
-    const standardCategories = ['OFERTAS', 'Masculino', 'Feminino', 'Acessórios', 'Calçados'];
+    const standardCategories = dynamicCategories.slice(0, 5).map(cat => cat.name);
     return [...brands, ...standardCategories];
-  }, [products]);
+  }, [products, dynamicCategories]);
 
   const handleProductClick = (product: Product) => {
     onClose();

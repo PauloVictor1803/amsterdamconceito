@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, ChevronRight, Heart, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDynamicCategories } from '../hooks/useDynamicCategories';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -10,23 +11,23 @@ interface MobileDrawerProps {
   cartCount: number;
 }
 
-const MENU_LINKS = [
-  { to: '/', label: 'Início' },
-  { to: '/categoria/feminino', label: 'Feminino' },
-  { to: '/categoria/masculino', label: 'Masculino' },
-  { to: '/categoria/acessorios', label: 'Acessórios' },
-  { to: '/categoria/relogios', label: 'Relógios' },
-  { to: '/categoria/oculos', label: 'Óculos' },
-  { to: '/categoria/bones', label: 'Bonés' },
-  { to: '/categoria/ofertas', label: 'Ofertas', highlight: true },
-];
-
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   isOpen,
   onClose,
   wishlistCount,
   cartCount
 }) => {
+  const dynamicCategories = useDynamicCategories();
+  
+  const MENU_LINKS = [
+    { to: '/', label: 'Início' },
+    ...dynamicCategories.map(cat => ({
+      to: cat.link,
+      label: cat.name,
+      highlight: cat.highlight
+    }))
+  ];
+
   // Trava com segurança o scroll de fundo e o bounce elástico do iOS Safari/Chrome Mobile
   useEffect(() => {
     if (isOpen) {
