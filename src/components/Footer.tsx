@@ -36,7 +36,7 @@ export default function Footer() {
             </svg>
             <span>CONCEITO</span>
           </div>
-          <p className="text-gray-400 text-sm italic font-light mb-6 border-l-2 border-[#C49A6C] pl-3">
+          <p className="text-gray-400 text-sm italic font-light mb-6">
             "<EditableText field="rodape_frase_slogan" defaultText="Te vestindo de emoções e qualidade" />"
           </p>
           <div className="flex gap-4 mt-2">

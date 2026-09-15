@@ -19,9 +19,9 @@ export default function CategorySlider() {
         </span>
       </div>
 
-      <div className="relative -mx-4 px-4 lg:-mx-8 lg:px-8">
+      <div className="relative -mx-4 lg:-mx-8">
         <div
-          className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none scroll-smooth md:justify-center"
+          className="flex gap-4 md:gap-6 overflow-x-auto py-2 px-4 lg:px-8 scrollbar-none scroll-smooth before:content-[''] before:m-auto after:content-[''] after:m-auto"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {displayCategories.map((cat, index) => (

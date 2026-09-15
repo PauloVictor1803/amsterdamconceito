@@ -30,35 +30,42 @@ const ALT_KEYS: Record<number, { imageKeys: string[]; textKeys: string[] }> = {
   7: { imageKeys: ['categoria_7_imagem', 'imagem_da_parte_7'], textKeys: ['categoria_7_texto', 'categoria_7_nome', 'texto_da_parte_7'] },
 };
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
 export function useDynamicCategories(): CategoryItem[] {
   const { config, loading } = useStoreConfig();
 
   return useMemo(() => {
+    // Se estiver carregando pela primeira vez sem qualquer cache, retorna lista vazia para evitar flash de itens deletados
+    if (loading && !config) {
+      return [];
+    }
+
+    // Verifica se a Shopify forneceu as configurações da loja
+    const hasShopifyCategories = config && Object.keys(config).some(key => 
+      key.startsWith('categoria_') || key.startsWith('imagem_') || key.startsWith('texto_')
+    );
+
     return FIXED_CATEGORIES.map((cat, index) => {
       const num = index + 1;
-      let customImage = cat.defaultImage;
-      let customName = cat.name;
-      let isVisible = true;
+      const alt = ALT_KEYS[num];
       
-      if (!loading && config) {
-        const alt = ALT_KEYS[num];
-        
-        // Image parsing
-        const imageObj = 
-          config[`categoria_${num}_imagem`] || 
-          config[`categoria_${cat.id}_imagem`] ||
-          alt?.imageKeys.map(k => (config as any)?.[k]).find(val => typeof val === 'object' && val !== null);
+      let customName = '';
+      let customImage = cat.defaultImage;
 
-        if (typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj && (imageObj as { url: string }).url) {
-          customImage = (imageObj as { url: string }).url;
-        }
-
-        // Text parsing
+      if (config) {
+        // Busca o texto/nome configurado na Shopify
         let nameVal: any = config[`categoria_${num}_texto`];
-        
         if (nameVal === undefined) nameVal = config[`categoria_${num}_nome`];
         if (nameVal === undefined) nameVal = config[`categoria_${cat.id}_nome`];
-        
+
         if (nameVal === undefined && alt) {
           for (const k of alt.textKeys) {
             if ((config as any)?.[k] !== undefined) {
@@ -68,24 +75,42 @@ export function useDynamicCategories(): CategoryItem[] {
           }
         }
 
-        // Hide category if explicitly empty or null in metaobject
-        if (nameVal === "" || nameVal === null) {
-          isVisible = false;
-        } else if (typeof nameVal === 'string' && nameVal.trim()) {
-          customName = DOMPurify.sanitize(nameVal, { ALLOWED_TAGS: [] });
+        if (typeof nameVal === 'string' && nameVal.trim()) {
+          customName = DOMPurify.sanitize(nameVal, { ALLOWED_TAGS: [] }).trim();
+        }
+
+        // Busca a imagem configurada na Shopify
+        const imageObj = 
+          config[`categoria_${num}_imagem`] || 
+          config[`categoria_${cat.id}_imagem`] ||
+          alt?.imageKeys.map(k => (config as any)?.[k]).find(val => typeof val === 'object' && val !== null);
+
+        if (typeof imageObj === 'object' && imageObj !== null && 'url' in imageObj && (imageObj as { url: string }).url) {
+          customImage = (imageObj as { url: string }).url;
         }
       }
 
-      if (!isVisible) {
-        return null;
+      // Regra: Se a Shopify está conectada com as configurações,
+      // SOMENTE exibe categorias cujo texto foi preenchido pelo lojista!
+      // Se foi apagado ou deixado em branco, a categoria é omitida em toda a loja.
+      if (hasShopifyCategories) {
+        if (!customName || customName.length === 0) {
+          return null;
+        }
+      } else {
+        customName = cat.name;
       }
 
+      const isHighlight = cat.highlight || customName.toLowerCase().includes('oferta');
+      const slug = slugify(customName);
+      const link = isHighlight ? '/categoria/ofertas' : `/categoria/${slug || cat.id}`;
+
       return {
-        id: cat.id,
+        id: slug || cat.id,
         name: customName,
-        link: cat.link,
+        link,
         image: customImage,
-        highlight: cat.highlight,
+        highlight: isHighlight,
       };
     }).filter((c): c is CategoryItem => c !== null);
   }, [config, loading]);

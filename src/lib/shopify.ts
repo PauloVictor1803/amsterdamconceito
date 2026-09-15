@@ -128,6 +128,8 @@ export function invalidateShopifyCache() {
   cachedProducts = null;
   cachedProductsPromise = null;
   productHandleCache.clear();
+  cachedConfig = null;
+  cachedConfigPromise = null;
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('shopify:cache-invalidated'));
   }
@@ -349,12 +351,13 @@ export async function createShopifyCheckout(lines: { variantId: string, quantity
   return null;
 }
 
-export async function getStoreConfig(): Promise<Record<string, string | { url: string, altText?: string }> | null> {
+export async function getStoreConfig(options?: { forceRefresh?: boolean }): Promise<Record<string, string | { url: string, altText?: string }> | null> {
+  const force = options?.forceRefresh ?? false;
   const now = Date.now();
-  if (cachedConfig && (now - cachedConfig.timestamp < CACHE_TTL_MS)) {
+  if (!force && cachedConfig && (now - cachedConfig.timestamp < CACHE_TTL_MS)) {
     return cachedConfig.data;
   }
-  if (cachedConfigPromise) {
+  if (!force && cachedConfigPromise) {
     return cachedConfigPromise;
   }
 
@@ -392,6 +395,11 @@ export async function getStoreConfig(): Promise<Record<string, string | { url: s
           }
         });
         cachedConfig = { data: config, timestamp: Date.now() };
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('amt_store_config', JSON.stringify(config));
+          } catch (_) {}
+        }
         return config;
       }
     } catch (err) {
@@ -403,5 +411,18 @@ export async function getStoreConfig(): Promise<Record<string, string | { url: s
   })();
 
   return cachedConfigPromise;
+}
+
+export function getCachedStoreConfig(): Record<string, string | { url: string, altText?: string }> | null {
+  if (cachedConfig?.data) return cachedConfig.data;
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('amt_store_config');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (_) {}
+  }
+  return null;
 }
 
